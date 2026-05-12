@@ -1,0 +1,65 @@
+<style>
+    /* ... (mantén el resto igual) ... */
+
+    .icon-container {
+        display: flex;
+        gap: 40px; /* Más espacio entre iconos para que luzcan */
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+
+    .opcion-modulo {
+        text-align: center;
+        width: 220px; /* Cuadro un poco más ancho */
+        padding: 20px;
+        background: transparent; /* Quitamos el fondo blanco para que parezca el ejemplo */
+        border: none; /* Sin bordes para un estilo más limpio */
+        transition: transform 0.3s ease;
+    }
+
+    .opcion-modulo:hover {
+        transform: scale(1.1); /* Efecto de acercamiento al pasar el mouse */
+    }
+
+    .opcion-modulo img {
+        width: 160px; /* Tamaño grande como el de tu ejemplo */
+        height: auto;
+        filter: drop-shadow(0px 10px 15px rgba(0,0,0,0.2)); /* Sombra para dar profundidad 3D */
+        margin-bottom: 15px;
+    }
+
+    .opcion-modulo p {
+        font-weight: bold;
+        font-size: 15px;
+        color: #1b5e20;
+        text-transform: uppercase;
+        font-family: Arial, sans-serif;
+    }
+    /* Indicador de estado (Círculo) */
+.status-dot {
+    height: 10px;
+    width: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+}
+
+/* Colores dinámicos según el estado */
+.status-dot.activo { 
+    background-color: #28a745; /* Verde */
+}
+
+.status-dot.reposo-médico { 
+    background-color: #ffc107; /* Amarillo/Naranja para Reposo */
+    box-shadow: 0 0 5px #ffc107;
+}
+
+.status-dot.vacaciones { 
+    background-color: #17a2b8; /* Azul para Vacaciones */
+}
+
+.status-dot.inactivo { 
+    background-color: #dc3545; /* Rojo para Inactivo */
+}
+</style>
