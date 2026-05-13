@@ -1,11 +1,13 @@
 <?php 
-require_once 'config/app_config.php';
-require_once 'includes/metadata_helper.php';
+session_start();
 ?>
 <!DOCTYPE html>
 <html lang="es" translate="no">
 <head>
-    <?php render_metadata("Acceso al Sistema"); ?>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso al Sistema - FONDAS</title>
+    <meta name="robots" content="noindex, nofollow">
     <style>
         body, html { height: 100%; margin: 0; font-family: 'Segoe UI', Tahoma, sans-serif; overflow: hidden; }
 

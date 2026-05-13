@@ -56,7 +56,8 @@ $nombre_usuario = $_SESSION['nombre'] ?? 'Usuario';
             border-radius: 6px; overflow: hidden; z-index: 100;
             margin-top: 8px;
         }
-        .user-dropdown:hover .user-dropdown-content { display: block; }
+        .user-dropdown-content.show { display: block; }
+
         .user-dropdown-content a {
             color: #333 !important; padding: 12px 16px; text-decoration: none;
             display: block; background: transparent; font-weight: normal; border-radius: 0; text-align: left;
@@ -64,6 +65,17 @@ $nombre_usuario = $_SESSION['nombre'] ?? 'Usuario';
         .user-dropdown-content a:hover { background-color: #f1f8e9; color: #2e7d32 !important; }
         .user-dropdown-content .logout-link { color: #d32f2f !important; font-weight: bold; border-top: 1px solid #eee; }
         .user-dropdown-content .logout-link:hover { background-color: #ffebee; color: #b71c1c !important; }
+        /* Puente invisible */
+        .user-dropdown-content::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 0;
+            width: 100%;
+            height: 15px;
+            background: transparent;
+        }
+
 
         .container { 
             background: white; 
@@ -100,7 +112,10 @@ $nombre_usuario = $_SESSION['nombre'] ?? 'Usuario';
         .btn-new { background-color: #2e7d32; }
         .btn-view { background-color: #1565c0; }
     </style>
+    <!-- SweetAlert2 -->
+    <script src="assets/sweetalert2.all.min.js"></script>
 </head>
+
 <body>
 
     <div class="wrapper">
@@ -111,15 +126,44 @@ $nombre_usuario = $_SESSION['nombre'] ?? 'Usuario';
         <div class="navbar">
             <span>    Sistema de Incidencias</span>
             <div class="user-dropdown">
-                <button class="user-dropdown-btn">
+                <button class="user-dropdown-btn" id="solMenuBtn">
                     <span>Bienvenido(a): <strong><?php echo htmlspecialchars(explode(' ', $nombre_usuario)[0]); ?></strong></span>
                     <span style="font-size: 10px;">▼</span>
                 </button>
-                <div class="user-dropdown-content">
-                    <a href="logout.php" class="logout-link" onclick="return confirm('¿Estás seguro que deseas cerrar sesión?');">Cerrar Sesión</a>
-
+                <div class="user-dropdown-content" id="solMenuContent">
+                    <a href="#" class="logout-link" id="solLogoutBtn">Cerrar Sesión</a>
                 </div>
             </div>
+            <script>
+                document.getElementById('solMenuBtn').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    document.getElementById('solMenuContent').classList.toggle('show');
+                });
+
+                document.getElementById('solLogoutBtn').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: '¿Finalizar Sesión?',
+                        text: "Asegúrate de haber guardado tus solicitudes antes de salir.",
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#2e7d32',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Sí, Salir ahora',
+                        cancelButtonText: 'Seguir aquí'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = 'logout.php';
+                        }
+                    });
+                });
+
+                window.addEventListener('click', function() {
+                    document.getElementById('solMenuContent').classList.remove('show');
+                });
+            </script>
+
+
         </div>
 
         <div class="container">

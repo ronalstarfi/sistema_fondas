@@ -151,7 +151,10 @@ if ($db) {
             font-size: 11px;
         }
     </style>
+    <!-- SweetAlert2 para mensajes premium -->
+    <script src="../assets/sweetalert2.all.min.js"></script>
 </head>
+
 <body>
 
     <div class="banner-container">
@@ -174,7 +177,8 @@ if ($db) {
                 border-radius: 6px; overflow: hidden; z-index: 100;
                 margin-top: 8px;
             }
-            .user-dropdown:hover .user-dropdown-content { display: block; }
+            .user-dropdown-content.show { display: block; }
+
             .user-dropdown-content a {
                 color: #333 !important; padding: 12px 16px; text-decoration: none;
                 display: block; background: transparent; font-weight: normal; border-radius: 0;
@@ -182,17 +186,60 @@ if ($db) {
             .user-dropdown-content a:hover { background-color: #f1f8e9; color: #2e7d32 !important; }
             .user-dropdown-content .logout-link { color: #d32f2f !important; font-weight: bold; border-top: 1px solid #eee; }
             .user-dropdown-content .logout-link:hover { background-color: #ffebee; color: #b71c1c !important; }
+            /* Puente invisible para evitar que se cierre el menú al mover el ratón */
+            .user-dropdown-content::before {
+                content: '';
+                position: absolute;
+                top: -15px;
+                left: 0;
+                width: 100%;
+                height: 15px;
+                background: transparent;
+            }
         </style>
+
         <div class="user-dropdown">
-            <button class="user-dropdown-btn">
+            <button class="user-dropdown-btn" id="userMenuBtn">
                 <span>Bienvenido(a): <strong><?php echo htmlspecialchars(explode(' ', $_SESSION['nombre'])[0]); ?></strong></span>
                 <span style="font-size: 10px;">▼</span>
             </button>
-            <div class="user-dropdown-content">
-                <a href="../logout.php" class="logout-link" onclick="return confirm('¿Estás seguro que deseas cerrar sesión?');">Cerrar Sesión</a>
-
+            <div class="user-dropdown-content" id="userMenuContent">
+                <a href="#" class="logout-link" id="logoutBtn">Cerrar Sesión</a>
             </div>
         </div>
+        <script>
+            document.getElementById('userMenuBtn').addEventListener('click', function(e) {
+                e.stopPropagation();
+                document.getElementById('userMenuContent').classList.toggle('show');
+            });
+
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                Swal.fire({
+                    title: '¿Cerrar Sesión?',
+                    text: "Se guardará tu actividad y saldrás del sistema de forma segura.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#2e7d32',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, Salir',
+                    cancelButtonText: 'Cancelar',
+                    background: '#ffffff',
+                    color: '#1b5e20',
+                    backdrop: `rgba(0,0,123,0.1)`
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '../logout.php';
+                    }
+                });
+            });
+
+            window.addEventListener('click', function() {
+                document.getElementById('userMenuContent').classList.remove('show');
+            });
+        </script>
+
+
     </div>
 
     <!-- TÍTULO DINÁMICO -->
