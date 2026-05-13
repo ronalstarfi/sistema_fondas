@@ -1,6 +1,8 @@
 <?php
 session_start();
 require_once 'config/database.php';
+require_once 'includes/metadata_helper.php';
+
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -111,8 +113,8 @@ $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Gestión de Tickets - FONDAS</title>
+    <?php echo render_metadata("Gestión de Tickets"); ?>
+
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
         .wrapper { max-width: 1350px; margin: auto; }
@@ -168,7 +170,8 @@ $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <body>
     <div class="wrapper">
         <div class="cintillo-container">
-            <img src="img/logo3.png" alt="Cintillo FONDAS" class="cintillo">
+            <img src="img/logo3.png" alt="Cintillo <?php echo APP_NAME; ?>" class="cintillo">
+
         </div>
 
         <div class="container">

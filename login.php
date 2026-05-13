@@ -1,11 +1,14 @@
+<?php 
+require_once 'config/app_config.php';
+require_once 'includes/metadata_helper.php';
+?>
 <!DOCTYPE html>
 <html lang="es" translate="no">
 <head>
-    <meta charset="UTF-8">
-    <meta name="google" content="notranslate">
-    <title>SICEU - Acceso al Sistema</title>
+    <?php render_metadata("Acceso al Sistema"); ?>
     <style>
         body, html { height: 100%; margin: 0; font-family: 'Segoe UI', Tahoma, sans-serif; overflow: hidden; }
+
         
         /* Fondo con imagen logo5.png */
         .bg {
