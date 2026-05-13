@@ -189,7 +189,8 @@ if ($db) {
                 <span style="font-size: 10px;">▼</span>
             </button>
             <div class="user-dropdown-content">
-                <a href="../logout.php" class="logout-link">Cerrar Sesión</a>
+                <a href="../logout.php" class="logout-link" onclick="return confirm('¿Estás seguro que deseas cerrar sesión?');">Cerrar Sesión</a>
+
             </div>
         </div>
     </div>
