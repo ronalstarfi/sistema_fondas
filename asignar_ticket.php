@@ -28,6 +28,7 @@ $tecnicos = $stmt_tec->fetchAll(PDO::FETCH_ASSOC);
 if ($_POST) {
     $id_tecnico_elegido = $_POST['id_tecnico'];
     $nuevo_estado = 'En Proceso';
+    $antiguo_tecnico_id = $ticket['especialista_id'];
     
     // Actualizamos la solicitud
     $sql_update = "UPDATE solicitud SET id_especialista = :id_tec, estatus = :estatus WHERE id = :id";
@@ -37,7 +38,16 @@ if ($_POST) {
     $stmt_up->bindParam(':id', $id_ticket);
     
     if ($stmt_up->execute()) {
-        // Redirigir al index con un mensaje de éxito
+        if ($id_tecnico_elegido && $id_tecnico_elegido !== $antiguo_tecnico_id) {
+            if ($antiguo_tecnico_id) {
+                $stmt_dec = $db->prepare("UPDATE especialista SET tickets_activos = GREATEST(0, tickets_activos - 1) WHERE id = :id");
+                $stmt_dec->bindParam(':id', $antiguo_tecnico_id);
+                $stmt_dec->execute();
+            }
+            $stmt_inc = $db->prepare("UPDATE especialista SET tickets_activos = tickets_activos + 1 WHERE id = :id");
+            $stmt_inc->bindParam(':id', $id_tecnico_elegido);
+            $stmt_inc->execute();
+        }
         echo "<script>alert('Técnico asignado exitosamente'); window.location='index.php';</script>";
     }
 }
@@ -53,6 +63,9 @@ if ($_POST) {
         .header-fondas { background: white; border-bottom: 5px solid #2e7d32; padding: 20px 0; text-align: center; }
         .logo-principal { height: 100px; width: auto; display: inline-block; }
         .sistema-badge { background-color: #2e7d32; color: white; padding: 5px 15px; border-radius: 50px; font-weight: bold; text-transform: uppercase; font-size: 0.8rem; }
+        .btn-new { background: linear-gradient(135deg, #2e7d32, #27ae60); color: white; padding: 12px 22px; border-radius: 10px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 8px; font-size: 0.95rem; box-shadow: 0 10px 20px rgba(46,125,50,0.18); transition: transform 0.2s ease, background 0.2s ease; border: 1px solid #1b5e20; }
+        .btn-new:hover { background: linear-gradient(135deg, #23903a, #1d7d31); transform: translateY(-2px); }
+        .btn-back::before { content: '\2190'; margin-right: 8px; font-size: 1.05rem; display: inline-block; }
     </style>
 </head>
 <body class="bg-light">
@@ -98,7 +111,7 @@ if ($_POST) {
                             
                             <div class="d-grid gap-2">
                                 <button type="submit" class="btn btn-danger btn-lg">FINALIZAR ASIGNACIÓN</button>
-                                <a href="index.php" class="btn btn-outline-secondary">Volver al Listado</a>
+                                <a href="index.php" class="btn-new btn-back">Volver al Listado</a>
                             </div>
                         </form>
                     </div>

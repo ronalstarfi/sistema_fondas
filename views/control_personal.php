@@ -66,18 +66,18 @@ $historial_asistencia = $stmt_h->fetchAll(PDO::FETCH_ASSOC);
         :root { 
             --verde-fondas: #1d5733; 
             --azul-fondas: #0d6efd; 
-            --morado-fondas: #6610f2;
+            --morado-fondas: #a779f1;
             --amarillo-fondas: #ffc107;
-            --bg-gris: #d6d8db; 
+            --bg-gris: #eceef1; 
         }
         body { background-color: var(--bg-gris); font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
         
-        .cintillo-fondas { background-color: var(--verde-fondas); color: white; padding: 12px 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+        .cintillo-fondas { background-color: #2e7d32; color: white; padding: 12px 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
         .sidebar-stats { background: white; border-right: 1px solid #dee2e6; min-height: calc(100vh - 70px); padding: 25px; }
         
         .stat-card { 
             background: white; border-radius: 15px; padding: 18px; margin-bottom: 20px; 
-            border: 1px solid #edf2f7; border-left: 6px solid var(--verde-fondas); 
+            border: 1px solid #d5e5f5; border-left: 6px solid var(--verde-fondas); 
             cursor: pointer; transition: all 0.3s ease;
         }
         .stat-card:hover { transform: translateX(8px); box-shadow: 0 5px 15px rgba(0,0,0,0.08); background-color: #fafafa; }
@@ -106,8 +106,8 @@ $historial_asistencia = $stmt_h->fetchAll(PDO::FETCH_ASSOC);
 </head>
 <body>
 
-<div class="bg-white text-center py-3 border-bottom">
-    <img src="../img/logo3.png" style="height: 60px;" alt="FONDAS">
+<div class="bg-white text-center shadow-sm" style="padding:0; overflow:hidden;">
+    <img src="../img/logo3.png" style="width:100%; max-height:140px; object-fit:contain; display:block;" alt="FONDAS">
 </div>
 
 <nav class="cintillo-fondas d-flex justify-content-between align-items-center">
@@ -115,7 +115,7 @@ $historial_asistencia = $stmt_h->fetchAll(PDO::FETCH_ASSOC);
     <div class="small">
         <span class="me-3">Usuario: <strong><?php echo $nombre_usuario_logueado; ?></strong></span>
         <a href="home_especialista.php" class="text-white text-decoration-none border px-3 py-1 rounded-pill">
-            <i class="fas fa-home me-1"></i> Inicio
+            <i class="fas fa-arrow-left me-1"></i> Volver
         </a>
     </div>
 </nav>
@@ -145,7 +145,7 @@ $historial_asistencia = $stmt_h->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             </div>
 
-            <?php if ($rol_logueado == 'Jefe'): ?>
+            <?php if (in_array($rol_logueado, ['Jefe','Gerente','Coordinadora'])): ?>
             <div class="stat-card card-historial mt-4" data-bs-toggle="modal" data-bs-target="#modalHistorial">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
@@ -271,7 +271,7 @@ $historial_asistencia = $stmt_h->fetchAll(PDO::FETCH_ASSOC);
                                 <th class="ps-4">Especialista</th>
                                 <th>Fecha / Hora</th>
                                 <th>Movimiento</th>
-                                <th>Motivo / Observación</th>
+                                <th>Motivo / Observación / Documento</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -298,7 +298,16 @@ $historial_asistencia = $stmt_h->fetchAll(PDO::FETCH_ASSOC);
                                         <?php echo $h['tipo_movimiento']; ?>
                                     </span>
                                 </td>
-                                <td class="small text-secondary"><?php echo $h['detalle'] ?: '---'; ?></td>
+                                <td class="small text-secondary">
+                                    <?php echo $h['detalle'] ?: '---'; ?>
+                                    <?php if (!empty($h['reposo_archivo'])): ?>
+                                        <div class="mt-2">
+                                            <a href="../<?php echo htmlspecialchars($h['reposo_archivo']); ?>" target="_blank" class="text-decoration-none">
+                                                <i class="fas fa-paperclip"></i> Ver reposo médico
+                                            </a>
+                                        </div>
+                                    <?php endif; ?>
+                                </td>
                             </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -315,7 +324,7 @@ $historial_asistencia = $stmt_h->fetchAll(PDO::FETCH_ASSOC);
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header bg-dark text-white border-0"><h5 class="modal-title">Actualizar Mi Estatus</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
             <div class="modal-body p-4">
-                <form action="actualizar_estado.php" method="POST">
+                <form action="actualizar_estado.php" method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="id_especialista" value="<?php echo $id; ?>">
                     <div class="mb-4 text-center">
                         <p class="text-muted small">Seleccione su disponibilidad actual para el sistema.</p>
@@ -338,6 +347,14 @@ $historial_asistencia = $stmt_h->fetchAll(PDO::FETCH_ASSOC);
                         <label class="form-label fw-bold small">Detalles Adicionales:</label>
                         <textarea class="form-control" name="motivo_permiso" rows="2" placeholder="Ej: Motivo de la salida o reposo..."></textarea>
                     </div>
+                    <div id="extra_file_<?php echo $id; ?>" class="mb-4" style="display:none;">
+                        <label class="form-label fw-bold small">Adjuntar reposo médico</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0"><i class="fas fa-paperclip"></i></span>
+                            <input type="file" class="form-control border-start-0" name="reposo_medico_file" accept=".jpg,.jpeg,.png">
+                        </div>
+                        <div class="form-text">Adjuntar archivo en formato JPG o PNG.</div>
+                    </div>
                     <button type="submit" class="btn btn-success w-100 py-3 fw-bold rounded-pill shadow">Confirmar y Guardar</button>
                 </form>
             </div>
@@ -351,6 +368,7 @@ function toggleCampos(id) {
     const val = document.getElementById('sel_' + id).value;
     const conFechas = ['Reposo Médico', 'Vacaciones', 'Permiso Institucional'];
     document.getElementById('extra_fechas_' + id).style.display = conFechas.includes(val) ? 'flex' : 'none';
+    document.getElementById('extra_file_' + id).style.display = (val === 'Reposo Médico') ? 'block' : 'none';
 }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

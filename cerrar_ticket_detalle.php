@@ -57,26 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['confirmar_cierre'])) {
             ':id' => $id_ticket
         ]);
 
-        // --- INSERCIÓN DE AUDITORÍA FORENSE ---
-        $ip = $_SERVER['REMOTE_ADDR'] ?? 'Desconocida';
-        $ua = $_SERVER['HTTP_USER_AGENT'] ?? 'Desconocido';
-        $nombre_usuario = $_SESSION['nombre'] ?? 'Usuario';
-        
-        $query_ci = "SELECT ci FROM especialista WHERE id = :id LIMIT 1";
-        $stmt_ci = $db->prepare($query_ci);
-        $stmt_ci->execute([':id' => $_SESSION['user_id']]);
-        $ci_esp = $stmt_ci->fetch(PDO::FETCH_ASSOC)['ci'] ?? 'N/A';
-
-        $audit_sql = "INSERT INTO auditoria_solicitudes (id_solicitud, estatus_anterior, estatus_nuevo, usuario_que_cambio, cedula_usuario, rol_usuario, direccion_ip, user_agent) VALUES (:id_sol, 'EN PROCESO', 'CERRADO', :nombre, :ci, :rol, :ip, :ua)";
-        $db->prepare($audit_sql)->execute([
-            ':id_sol' => $id_ticket,
-            ':nombre' => $nombre_usuario,
-            ':ci' => $ci_esp,
-            ':rol' => $rol,
-            ':ip' => $ip,
-            ':ua' => $ua
-        ]);
-
         $db->commit();
         
         // MENSAJE DE ÉXITO CON TU DISEÑO ORIGINAL
@@ -84,15 +64,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['confirmar_cierre'])) {
         <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #d1e2d4; font-family: 'Segoe UI', sans-serif; position: fixed; top: 0; left: 0; width: 100%; z-index: 9999;">
             <div style="background: white; padding: 40px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; max-width: 450px; width: 90%;">
                 <div style="width: 80px; height: 80px; background-color: #f0f9f1; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin: 0 auto 20px; border: 2px solid #e1f0e4;">
-                    <span style="color: #28a745; font-size: 40px;">✔</span>
-                </div>
+                            <span style="color: #28a745; font-size: 40px;">✔</span>
+                        </div>
                 <h1 style="color: #333; margin-bottom: 10px; font-size: 24px;">¡Ticket #<?php echo $id_ticket; ?> Finalizado!</h1>
                 <p style="color: #666; margin-bottom: 30px; line-height: 1.5;">
                     La incidencia ha sido cerrada y la solución técnica se ha registrado exitosamente.
                 </p>
-                <a href="ver_tickets.php" style="background-color: #2e7d32; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
-                    Volver a la Lista
-                </a>
+                <a href="ver_tickets.php" class="btn-new btn-back">Volver a la Lista</a>
             </div>
         </div>
         <?php
@@ -124,6 +102,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['confirmar_cierre'])) {
         .btn-finalizar { background: #2e7d32; color: white; border: none; padding: 15px; width: 100%; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px; text-transform: uppercase; transition: 0.3s; }
         .btn-finalizar:hover { background: #1b5e20; }
         .btn-volver { display: block; text-align: center; margin-top: 15px; color: #2e7d32; text-decoration: none; padding: 10px; border: 1px solid #2e7d32; border-radius: 5px; font-weight: bold; }
+        .btn-new { background: linear-gradient(135deg, #2e7d32, #27ae60); color: white; padding: 12px 22px; border-radius: 10px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 8px; font-size: 0.95rem; box-shadow: 0 10px 20px rgba(46,125,50,0.18); transition: transform 0.2s ease, background 0.2s ease; border: 1px solid #1b5e20; }
+        .btn-new:hover { background: linear-gradient(135deg, #23903a, #1d7d31); transform: translateY(-2px); }
+        .btn-back::before { content: '\2190'; margin-right: 8px; font-size: 1.05rem; display: inline-block; }
+        /* Ajustes específicos para el botón de volver: tamaño reducido y centrado */
+        .btn-back {
+            display: block;
+            margin: 15px auto 0;
+            color: #2e7d32;
+            background: transparent;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            text-decoration: none;
+            text-align: center;
+            box-shadow: none;
+            border: 1px solid #2e7d32;
+            width: auto;
+            max-width: 220px;
+        }
         .loc-highlight { color: #d32f2f; font-weight: bold; }
     </style>
 </head>
@@ -167,7 +165,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['confirmar_cierre'])) {
                     <textarea name="observaciones" rows="4" placeholder="Indique las acciones tomadas..." required></textarea>
 
                     <button type="submit" name="confirmar_cierre" class="btn-finalizar">Confirmar y Cerrar Ticket</button>
-                    <a href="ver_tickets.php" class="btn-volver">Cancelar y Volver</a>
+                    <a href="ver_tickets.php" class="btn-new btn-back">Cancelar y Volver</a>
                 </form>
             </div>
         </div>

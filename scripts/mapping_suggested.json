@@ -1,0 +1,160 @@
+{
+    "Soporte": {
+        "types": [
+            {
+                "id": 5,
+                "tipo": "Laptop"
+            },
+            {
+                "id": 2,
+                "tipo": "Monitor"
+            },
+            {
+                "id": 9,
+                "tipo": "Router"
+            },
+            {
+                "id": 33,
+                "tipo": "Switch"
+            }
+        ],
+        "brands": [
+            {
+                "id": 4,
+                "marca": "Dell"
+            },
+            {
+                "id": 9,
+                "marca": "Compaq"
+            },
+            {
+                "id": 6,
+                "marca": "Benq"
+            },
+            {
+                "id": 10,
+                "marca": "AON"
+            }
+        ]
+    },
+    "Infraestructura": {
+        "types": [
+            {
+                "id": 32,
+                "tipo": "Cable de Red (Patch Cord)"
+            },
+            {
+                "id": 9,
+                "tipo": "Router"
+            },
+            {
+                "id": 33,
+                "tipo": "Switch"
+            }
+        ],
+        "brands": [
+            {
+                "id": 4,
+                "marca": "Dell"
+            },
+            {
+                "id": 9,
+                "marca": "Compaq"
+            },
+            {
+                "id": 10,
+                "marca": "AON"
+            },
+            {
+                "id": 6,
+                "marca": "Benq"
+            }
+        ]
+    },
+    "Desarrollo": {
+        "types": [
+            {
+                "id": 5,
+                "tipo": "Laptop"
+            },
+            {
+                "id": 36,
+                "tipo": "Software Administrativo"
+            }
+        ],
+        "brands": [
+            {
+                "id": 4,
+                "marca": "Dell"
+            },
+            {
+                "id": 9,
+                "marca": "Compaq"
+            },
+            {
+                "id": 10,
+                "marca": "AON"
+            },
+            {
+                "id": 6,
+                "marca": "Benq"
+            }
+        ]
+    },
+    "Impresoras y Toner": {
+        "types": [
+            {
+                "id": 4,
+                "tipo": "Impresora"
+            }
+        ],
+        "brands": [
+            {
+                "id": 4,
+                "marca": "Dell"
+            },
+            {
+                "id": 10,
+                "marca": "AON"
+            },
+            {
+                "id": 6,
+                "marca": "Benq"
+            },
+            {
+                "id": 9,
+                "marca": "Compaq"
+            }
+        ]
+    },
+    "SIGA": {
+        "types": [
+            {
+                "id": 35,
+                "tipo": "Sistema Operativo"
+            },
+            {
+                "id": 36,
+                "tipo": "Software Administrativo"
+            }
+        ],
+        "brands": [
+            {
+                "id": 4,
+                "marca": "Dell"
+            },
+            {
+                "id": 9,
+                "marca": "Compaq"
+            },
+            {
+                "id": 10,
+                "marca": "AON"
+            },
+            {
+                "id": 6,
+                "marca": "Benq"
+            }
+        ]
+    }
+}

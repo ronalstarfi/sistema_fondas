@@ -26,7 +26,44 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if ($id && $estado) {
         try {
+            // 1b. Crear la columna de bitácora si no existe (hacer fuera de la transacción,
+            // porque ALTER TABLE hace COMMIT implícito en MySQL)
+            $columnCheck = $db->query("SHOW COLUMNS FROM asistencia_historico LIKE 'reposo_archivo'")->fetch(PDO::FETCH_ASSOC);
+            if (!$columnCheck) {
+                $db->exec("ALTER TABLE asistencia_historico ADD COLUMN reposo_archivo VARCHAR(255) NULL AFTER detalle");
+            }
+
             $db->beginTransaction();
+
+            // 2. Si el estado es Reposo Médico, procesar el archivo adjunto
+            $reposoArchivoRuta = null;
+            if ($estado === 'Reposo Médico' && isset($_FILES['reposo_medico_file']) && $_FILES['reposo_medico_file']['error'] !== UPLOAD_ERR_NO_FILE) {
+                $file = $_FILES['reposo_medico_file'];
+                $allowedTypes = ['image/jpeg' => 'jpg', 'image/png' => 'png'];
+                if ($file['error'] !== UPLOAD_ERR_OK) {
+                    throw new Exception('Error al subir el archivo de reposo médico.');
+                }
+                if (!array_key_exists($file['type'], $allowedTypes)) {
+                    throw new Exception('Solo se permiten archivos JPG y PNG para el reposo médico.');
+                }
+                $uploadDir = __DIR__ . '/../uploads/reposos';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0755, true);
+                }
+                $extension = $allowedTypes[$file['type']];
+                $filename = 'reposo_' . $id . '_' . time() . '.' . $extension;
+                $destination = $uploadDir . '/' . $filename;
+                if (!move_uploaded_file($file['tmp_name'], $destination)) {
+                    throw new Exception('No se pudo guardar el archivo de reposo médico.');
+                }
+                $reposoArchivoRuta = 'uploads/reposos/' . $filename;
+            }
+
+            // 3. Crear la columna de bitácora si no existe
+            $columnCheck = $db->query("SHOW COLUMNS FROM asistencia_historico LIKE 'reposo_archivo'")->fetch(PDO::FETCH_ASSOC);
+            if (!$columnCheck) {
+                $db->exec("ALTER TABLE asistencia_historico ADD COLUMN reposo_archivo VARCHAR(255) NULL AFTER detalle");
+            }
 
             // 3. Lógica para la HORA DE SALIDA
             // Si NO es 'Activo' o 'Disponible', guardamos la hora actual. 
@@ -52,8 +89,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // 5. INSERTAR EN BITÁCORA (asistencia_historico)
             // Aquí guardamos el historial con el rango de fechas completo
             $sql_bitacora = "INSERT INTO asistencia_historico 
-                             (id_especialista, tipo_movimiento, fecha, hora, fecha_inicio, fecha_fin_permiso, detalle) 
-                             VALUES (:id, :mov, CURDATE(), CURTIME(), :f_ini, :f_fin, :det)";
+                             (id_especialista, tipo_movimiento, fecha, hora, fecha_inicio, fecha_fin_permiso, detalle, reposo_archivo) 
+                             VALUES (:id, :mov, CURDATE(), CURTIME(), :f_ini, :f_fin, :det, :archivo)";
             
             $stmt_b = $db->prepare($sql_bitacora);
             $stmt_b->execute([
@@ -62,6 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 ':f_ini' => $f_inicio,
                 ':f_fin' => $f_fin, // Se guarda en la nueva columna de la bitácora
                 ':det'   => $motivo
+                ,':archivo' => $reposoArchivoRuta
             ]);
 
             $db->commit();

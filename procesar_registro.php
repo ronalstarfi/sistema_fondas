@@ -1,7 +1,11 @@
 <?php
+session_start();
 require_once 'config/database.php';
 $database = new Database();
 $db = $database->getConnection();
+
+$rol = $_SESSION['rol'] ?? '';
+$esEspecialista = $rol === 'Especialista';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $ci = $_POST['ci'];
@@ -14,10 +18,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $db->beginTransaction();
 
-        // 1. Buscamos al técnico con menos carga en el área seleccionada
-        $query_tec = "SELECT id FROM especialista WHERE area_especifica = :area ORDER BY id ASC LIMIT 1";
-        $stmt_tec = $db->prepare($query_tec);
-        $stmt_tec->bindParam(':area', $area);
+        // 1. Asignación automática: elegir el técnico activo con menor carga en el área correspondiente.
+        // No se asignan tickets automáticamente a Gerente, Coordinadora ni Analista.
+        $allowedAreas = [
+            'Soporte' => 'Soporte',
+            'Infraestructura' => 'Infraestructura',
+            'Desarrollo' => 'Desarrollo',
+            'Impresoras y Toner' => 'Impresoras y Toner',
+            'SIGA' => 'SIGA'
+        ];
+
+        if (!isset($allowedAreas[$area])) {
+            throw new Exception('Área de problema no válida para la asignación automática.');
+        }
+
+        if ($area === 'SIGA') {
+            $query_tec = "SELECT id FROM especialista WHERE especialista = 'Benjamin Acevedo' AND disponibilidad = 'Activo' LIMIT 1";
+            $stmt_tec = $db->prepare($query_tec);
+        } else {
+            $query_tec = "SELECT id FROM especialista WHERE area_especifica = :area AND rol = 'Tecnico' AND disponibilidad = 'Activo' ORDER BY tickets_activos ASC, id ASC LIMIT 1";
+            $stmt_tec = $db->prepare($query_tec);
+            $stmt_tec->bindParam(':area', $area);
+        }
         $stmt_tec->execute();
         $tecnico = $stmt_tec->fetch(PDO::FETCH_ASSOC);
         $tecnico_id = $tecnico ? $tecnico['id'] : null;
@@ -33,6 +55,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bindParam(':fecha', $fecha);
         $stmt->bindParam(':tec_id', $tecnico_id);
         $stmt->execute();
+
+        if ($tecnico_id) {
+            $stmt_inc = $db->prepare("UPDATE especialista SET tickets_activos = tickets_activos + 1 WHERE id = :id");
+            $stmt_inc->bindParam(':id', $tecnico_id);
+            $stmt_inc->execute();
+        }
 
         // 3. Obtenemos el ID del ticket recién creado[cite: 2]
         $id_ticket_nuevo = $db->lastInsertId();

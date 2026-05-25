@@ -1,4 +1,5 @@
 <?php
+session_start();
 // 1. Conexión a la base de datos
 require_once 'config/database.php';
 $database = new Database();
@@ -7,74 +8,41 @@ $db = $database->getConnection();
 // Inicialización de variables
 $solicitante = null;
 $cedula_buscada = "";
+$rol = $_SESSION['rol'] ?? '';
+$userType = $_SESSION['user_type'] ?? '';
+$esEspecialista = ($userType === 'especialista' || $rol === 'Especialista');
 
-// 2. Lógica para buscar el solicitante
-if (isset($_POST['buscar_cedula'])) {
+// 2. Si el usuario está autenticado, cargamos su información directamente
+if (isset($_SESSION['user_id'])) {
+    // Si es especialista, tomamos los datos de la tabla especialista
+    if ($esEspecialista) {
+        $query = "SELECT ci, especialista AS nombre, area_especifica AS ubicacion FROM especialista WHERE id = :id LIMIT 1";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':id', $_SESSION['user_id']);
+        $stmt->execute();
+        $solicitante = $stmt->fetch(PDO::FETCH_ASSOC);
+    } else {
+        // Si es solicitante, la sesión guarda su CI en user_id
+        $ci_sesion = $_SESSION['user_id'];
+        $query = "SELECT ci, nombre, ubicacion FROM solicitante WHERE ci = :ci LIMIT 1";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':ci', $ci_sesion);
+        $stmt->execute();
+        $solicitante = $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+}
+
+// 3. Lógica para buscar el solicitante cuando no hay sesión (usuario externo)
+if (!isset($_SESSION['user_id']) && isset($_POST['buscar_cedula'])) {
     $cedula_buscada = $_POST['ci_busqueda'];
 
-    if($db) {
+    if ($db) {
+        // Se usa 'ubicacion' para la gerencia
         $query = "SELECT ci, nombre, ubicacion FROM solicitante WHERE ci = :ci LIMIT 1";
         $stmt = $db->prepare($query);
         $stmt->bindParam(':ci', $cedula_buscada);
         $stmt->execute();
         $solicitante = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        // --- INTEGRACIÓN CNE API (Extraída de Starfi 2.0) ---
-        if (!$solicitante) {
-            try {
-                // Conectar a la BD de starfi para sacar la configuración de la API
-                $con_starfi = new PDO("mysql:host=localhost;dbname=starfi", "root", "PARALELEPIPEDO3312");
-                $con_starfi->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                
-                $stmt_conf = $con_starfi->query("SELECT * FROM api_nacional_config ORDER BY id DESC LIMIT 1");
-                $config = $stmt_conf->fetch(PDO::FETCH_ASSOC);
-                
-                if ($config) {
-                    $base_url = rtrim(trim($config['api_url']), '/');
-                    $app_id = urlencode($config['app_id']);
-                    $token = urlencode($config['api_token']);
-                    $url = $base_url . "?app_id=$app_id&token=$token&nacionalidad=V&cedula=" . intval($cedula_buscada);
-
-                    $ch = curl_init();
-                    curl_setopt($ch, CURLOPT_URL, $url);
-                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-                    curl_setopt($ch, CURLOPT_TIMEOUT, 6);
-                    $json_response = curl_exec($ch);
-                    curl_close($ch);
-
-                    if ($json_response) {
-                        $api_data = json_decode($json_response, true);
-                        if (isset($api_data['data']) && !empty($api_data['data']) && $api_data['data'] !== false) {
-                            $d = $api_data['data'];
-                            $nombre_parts = [];
-                            if (!empty($d['primer_nombre'])) $nombre_parts[] = $d['primer_nombre'];
-                            if (!empty($d['segundo_nombre'])) $nombre_parts[] = $d['segundo_nombre'];
-                            if (!empty($d['primer_apellido'])) $nombre_parts[] = $d['primer_apellido'];
-                            if (!empty($d['segundo_apellido'])) $nombre_parts[] = $d['segundo_apellido'];
-                            
-                            $nombre_completo = implode(' ', $nombre_parts);
-                            
-                            // Auto-registrar al solicitante en FONDAS
-                            $ubicacion_default = 'Nuevo Ingreso (Por Asignar)';
-                            $ins = $db->prepare("INSERT INTO solicitante (ci, nombre, ubicacion) VALUES (:ci, :nom, :ub)");
-                            if ($ins->execute([':ci' => $cedula_buscada, ':nom' => $nombre_completo, ':ub' => $ubicacion_default])) {
-                                $solicitante = [
-                                    'ci' => $cedula_buscada,
-                                    'nombre' => $nombre_completo,
-                                    'ubicacion' => $ubicacion_default,
-                                    'cne_api' => true
-                                ];
-                            }
-                        }
-                    }
-                }
-            } catch (Exception $e) {
-                // Silencioso, si falla la API o la BD starfi, simplemente se muestra que no existe.
-            }
-        }
-        // --- FIN INTEGRACIÓN CNE ---
     }
 }
 ?>
@@ -109,6 +77,45 @@ if (isset($_POST['buscar_cedula'])) {
                 <div class="card-body p-0"> <!-- p-0 para que el logo toque los bordes si es necesario -->
                     
                     <!-- Cintillo Institucional centrado (Igual a ver_tickets.php) -->
+                <script>
+                document.addEventListener('DOMContentLoaded', function(){
+                    var area = document.getElementById('area_problema');
+                    var tipo = document.getElementById('id_tipo');
+                    var marca = document.getElementById('id_marca');
+
+                    function loadOptions(areaVal){
+                        if(!areaVal) return;
+                        fetch('ajax/get_options.php', {
+                            method: 'POST',
+                            headers: {'Content-Type':'application/x-www-form-urlencoded'},
+                            body: 'area=' + encodeURIComponent(areaVal)
+                        }).then(function(resp){
+                            return resp.json();
+                        }).then(function(data){
+                            if(data.types){
+                                tipo.innerHTML = '<option value="">Seleccione...</option>';
+                                data.types.forEach(function(t){
+                                    var o = document.createElement('option'); o.value = t.id; o.textContent = t.tipo; tipo.appendChild(o);
+                                });
+                            }
+                            if(data.brands){
+                                marca.innerHTML = '<option value="">Seleccione...</option>';
+                                data.brands.forEach(function(m){
+                                    var o = document.createElement('option'); o.value = m.id; o.textContent = m.marca; marca.appendChild(o);
+                                });
+                            }
+                        }).catch(function(err){
+                            console.error('Error cargando opciones:', err);
+                        });
+                    }
+
+                    if(area){
+                        area.addEventListener('change', function(e){ loadOptions(e.target.value); });
+                        // Si ya hay un área seleccionada al cargar la página, cargar opciones
+                        if(area.value) loadOptions(area.value);
+                    }
+                });
+                </script>
                     <div class="text-center p-4">
                         <img src="img/logo3.png" alt="Cintillo FONDAS" style="max-width: 100%; height: auto;">
                     </div>
@@ -122,6 +129,7 @@ if (isset($_POST['buscar_cedula'])) {
 
                     <div class="p-4">
                         <!-- Aquí empieza tu formulario de búsqueda de cédula -->
+                        <?php if (!isset($_SESSION['user_id'])): ?>
                         <form method="POST" class="row g-3 mb-4">
                             <div class="col-md-8">
                                 <label class="form-label fw-bold">Cédula del Solicitante</label>
@@ -131,44 +139,49 @@ if (isset($_POST['buscar_cedula'])) {
                                 <button type="submit" name="buscar_cedula" class="btn btn-primary btn-lg w-100" style="background-color: #0d6efd;">Verificar</button>
                             </div>
                         </form>
+                        <?php endif; ?>
 
                     <hr>
 
                     <?php if ($solicitante): ?>
-                        <?php if(isset($solicitante['cne_api'])): ?>
-                            <div class="alert alert-info py-2">✓ Verificado por CNE y auto-registrado: <?php echo $solicitante['nombre']; ?>.</div>
-                        <?php else: ?>
-                            <div class="alert alert-success py-2">✓ Trabajador verificado: <?php echo $solicitante['nombre']; ?>.</div>
-                        <?php endif; ?>
+                        <div class="alert alert-success py-2">
+                            ✓ <?php echo $esEspecialista ? 'Generando ticket como especialista:' : 'Trabajador verificado:'; ?> <?php echo htmlspecialchars($solicitante['nombre']); ?>.
+                        </div>
 
                         <form action="procesar_registro.php" method="POST" class="row g-3">
-                            <input type="hidden" name="ci" value="<?php echo $solicitante['ci']; ?>">
+                            <input type="hidden" name="ci" value="<?php echo htmlspecialchars($solicitante['ci']); ?>">
+
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small">Cédula del Solicitante</label>
+                                <input type="text" class="form-control bg-light" readonly value="<?php echo htmlspecialchars($solicitante['ci']); ?>">
+                            </div>
 
                             <div class="col-md-6">
                                 <label class="form-label text-muted small">Nombre</label>
-                                <input type="text" class="form-control bg-light" readonly value="<?php echo $solicitante['nombre']; ?>">
+                                <input type="text" class="form-control bg-light" readonly value="<?php echo htmlspecialchars($solicitante['nombre']); ?>">
                             </div>
       
                             <div class="col-md-6">
                                 <label class="form-label text-muted small">Gerencia / Ubicación</label>
-                                <input type="text" class="form-control bg-light" readonly value="<?php echo $solicitante['ubicacion']; ?>">
+                                <input type="text" class="form-control bg-light" readonly value="<?php echo htmlspecialchars($solicitante['ubicacion']); ?>">
                             </div>
 
                             <div class="col-md-12 mt-3">
                                 <label class="form-label fw-bold">Área del Requerimiento (Asignación Automática)</label>
-                                <select name="area_problema" class="form-select border-primary" required>
+                                <select id="area_problema" name="area_problema" class="form-select border-primary" required>
                                     <option value="">Seleccione el área del problema...</option>
                                     <option value="Soporte">Soporte Técnico</option>
                                     <option value="Infraestructura">Infraestructura</option>
                                     <option value="Desarrollo">Desarrollo</option>
                                     <option value="Impresoras y Toner">Impresoras y Tóner (Asignado a Oswaldo M.)</option>
+                                    <option value="SIGA">SIGA (Asignar a Benjamin Acevedo)</option>
                                 </select>
-                                <div class="form-text">El sistema buscará al técnico disponible con menos carga en el área seleccionada.</div>
+                                <div class="form-text">El sistema asigna automáticamente el ticket al técnico activo con la menor carga en el área seleccionada.</div>
                             </div>
 
                             <div class="col-md-6 mt-3">
                                 <label class="form-label fw-bold">Tipo de Equipo</label>
-                                <select name="id_tipo" class="form-select" required>
+                                <select id="id_tipo" name="id_tipo" class="form-select" required>
                                     <option value="">Seleccione...</option>
                                     <?php
                                     $res_t = $db->query("SELECT id, tipo FROM tipo ORDER BY tipo ASC");
@@ -183,7 +196,7 @@ if (isset($_POST['buscar_cedula'])) {
 
                             <div class="col-md-6 mt-3">
                                 <label class="form-label fw-bold">Marca</label>
-                                <select name="id_marca" class="form-select" required>
+                                <select id="id_marca" name="id_marca" class="form-select" required>
                                     <option value="">Seleccione...</option>
                                     <?php
                                     $res_m = $db->query("SELECT id, marca FROM marca ORDER BY marca ASC");
@@ -211,6 +224,8 @@ if (isset($_POST['buscar_cedula'])) {
 
                     <?php elseif (isset($_POST['buscar_cedula'])): ?>
                         <div class="alert alert-danger">La cédula no existe en la base de datos de FONDAS.</div>
+                    <?php elseif ($esEspecialista && !isset($solicitante)): ?>
+                        <div class="alert alert-danger">No se encontró la información del especialista en sesión. Verifique su usuario y vuelva a iniciar sesión.</div>
                     <?php endif; ?>
 
                 </div>

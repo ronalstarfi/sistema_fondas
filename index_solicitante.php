@@ -13,25 +13,45 @@ $nombre_usuario = $_SESSION['nombre'] ?? 'Usuario';
     <meta charset="UTF-8">
     <title>Panel de Solicitante - FONDAS</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
-        
-        .wrapper {
-            max-width: 1100px;
-            margin: auto;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            border-radius: 10px;
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
             overflow: hidden;
         }
 
-        .cintillo-container {
-            background-color: white;
-            text-align: center;
-            line-height: 0;
+        body {
+            background-color: #f4f4f4;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
         }
+
+        .wrapper {
+            max-width: 1100px;
+            margin: 20px auto;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            border-radius: 10px;
+            overflow: hidden;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            min-height: calc(100vh - 120px);
+        }
+
+        .cintillo-container {
+            width: 100%;
+            margin: 0;
+            background: white;
+            overflow: hidden;
+        }
+
         .cintillo {
             width: 100%;
-            height: auto;
+            max-height: 140px;
+            object-fit: contain;
             display: block;
+            margin: 0 auto;
         }
 
         .navbar {
@@ -41,9 +61,12 @@ $nombre_usuario = $_SESSION['nombre'] ?? 'Usuario';
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.9em;
+            font-size: 0.95rem;
         }
-        .user-dropdown { position: relative; display: inline-block; margin-left: 10px; }
+
+        .navbar .brand { font-weight: 700; text-transform: uppercase; }
+
+        .user-dropdown { position: relative; display: inline-block; }
         .user-dropdown-btn { 
             background: transparent; color: white; border: none; cursor: pointer; 
             font-size: 14px; font-family: inherit; display: flex; align-items: center; gap: 8px;
@@ -54,68 +77,98 @@ $nombre_usuario = $_SESSION['nombre'] ?? 'Usuario';
             background-color: #fff; min-width: 160px;
             box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
             border-radius: 6px; overflow: hidden; z-index: 100;
-            margin-top: 8px;
         }
-        .user-dropdown-content.show { display: block; }
-
+        .user-dropdown:hover .user-dropdown-content { display: block; }
         .user-dropdown-content a {
             color: #333 !important; padding: 12px 16px; text-decoration: none;
-            display: block; background: transparent; font-weight: normal; border-radius: 0; text-align: left;
+            display: block; background: transparent; font-weight: normal; border-radius: 0;
         }
         .user-dropdown-content a:hover { background-color: #f1f8e9; color: #2e7d32 !important; }
         .user-dropdown-content .logout-link { color: #d32f2f !important; font-weight: bold; border-top: 1px solid #eee; }
         .user-dropdown-content .logout-link:hover { background-color: #ffebee; color: #b71c1c !important; }
-        /* Puente invisible */
-        .user-dropdown-content::before {
-            content: '';
-            position: absolute;
-            top: -15px;
-            left: 0;
-            width: 100%;
-            height: 15px;
-            background: transparent;
-        }
-
 
         .container { 
             background: white; 
-            padding: 40px 25px; 
+            padding: 40px 30px; 
             width: 100%;
             box-sizing: border-box;
-            min-height: 300px;
-        }
-
-        h2 { color: #1b5e20; margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 15px; }
-
-        .button-group {
+            min-height: 420px;
+            flex: 1 1 auto;
             display: flex;
-            gap: 20px;
-            margin-top: 20px;
+            flex-direction: column;
         }
 
-        /* ESTILO DE LOS BOTONES PARA QUE PAREZCAN ENLACES CLICKEABLES */
-        .btn {
-            flex: 1;
-            padding: 15px;
+        .panel-title {
             text-align: center;
-            text-decoration: none; /* Quita el subrayado azul */
-            color: white;
-            border-radius: 6px;
+            margin: 0;
+            color: #1b5e20;
+            font-size: 24px;
+            text-transform: uppercase;
             font-weight: bold;
-            font-size: 1em;
-            display: inline-block;
-            transition: 0.3s;
         }
-        .btn:hover { opacity: 0.8; transform: translateY(-2px); }
-        
-        /* Enlaces específicos corregidos según tus archivos */
-        .btn-new { background-color: #2e7d32; }
-        .btn-view { background-color: #1565c0; }
-    </style>
-    <!-- SweetAlert2 -->
-    <script src="assets/sweetalert2.all.min.js"></script>
-</head>
 
+        .intro-text {
+            text-align: center;
+            color: #666;
+            margin: 18px auto 0;
+            max-width: 720px;
+            line-height: 1.6;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 40px;
+        }
+
+        .icon-container {
+            display: flex;
+            gap: 50px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .opcion-modulo {
+            text-align: center;
+            width: 180px;
+            transition: transform 0.3s ease;
+        }
+
+        .opcion-modulo:hover {
+            transform: scale(1.1);
+        }
+
+        .opcion-modulo img {
+            width: 160px;
+            height: auto;
+            display: block;
+            margin: 0 auto 15px;
+            object-fit: contain;
+        }
+
+        .opcion-modulo p {
+            font-weight: bold;
+            font-size: 13px;
+            margin: 0;
+            color: #1b5e20;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+        }
+
+        main a { text-decoration: none; color: inherit; }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            color: #666;
+            font-size: 11px;
+            margin-top: auto;
+            background: transparent;
+        }
+    </style>
+</head>
 <body>
 
     <div class="wrapper">
@@ -126,60 +179,43 @@ $nombre_usuario = $_SESSION['nombre'] ?? 'Usuario';
         <div class="navbar">
             <span>    Sistema de Incidencias</span>
             <div class="user-dropdown">
-                <button class="user-dropdown-btn" id="solMenuBtn">
-                    <span>Bienvenido(a): <strong><?php echo htmlspecialchars(explode(' ', $nombre_usuario)[0]); ?></strong></span>
+                <button class="user-dropdown-btn">
+                    <span>Bienvenido(a): <strong><?php echo htmlspecialchars($nombre_usuario); ?></strong></span>
                     <span style="font-size: 10px;">▼</span>
                 </button>
-                <div class="user-dropdown-content" id="solMenuContent">
-                    <a href="#" class="logout-link" id="solLogoutBtn">Cerrar Sesión</a>
+                <div class="user-dropdown-content">
+                    <a href="logout.php" class="logout-link">Cerrar Sesión</a>
                 </div>
             </div>
-            <script>
-                document.getElementById('solMenuBtn').addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    document.getElementById('solMenuContent').classList.toggle('show');
-                });
-
-                document.getElementById('solLogoutBtn').addEventListener('click', function(e) {
-                    e.preventDefault();
-                    Swal.fire({
-                        title: '¿Finalizar Sesión?',
-                        text: "Asegúrate de haber guardado tus solicitudes antes de salir.",
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#2e7d32',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Sí, Salir ahora',
-                        cancelButtonText: 'Seguir aquí'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = 'logout.php';
-                        }
-                    });
-                });
-
-                window.addEventListener('click', function() {
-                    document.getElementById('solMenuContent').classList.remove('show');
-                });
-            </script>
-
-
         </div>
 
         <div class="container">
-            <h2>Panel de Control - Solicitante</h2>
-            <p>Hola <strong><?php echo htmlspecialchars($nombre_usuario); ?></strong>, has ingresado correctamente al sistema.</p>
-            
-            <p style="color: #666; margin-top: 20px;">¿Qué desea hacer hoy?</p>
-            
-            <div class="button-group">
-    <!-- El enlace ahora apunta a registro.php que es la página de tu captura -->
-    <a href="registro.php" class="btn btn-new">+ CREAR NUEVA SOLICITUD</a>
-    
-    <a href="ver_tickets.php" class="btn btn-view">CONSULTAR MIS TICKETS</a>
-</div>
+            <h2 class="panel-title">Panel de Control - Solicitante</h2>
+
+            <main>
+                <div class="icon-container">
+                    <div class="opcion-modulo">
+                        <a href="registro.php">
+                            <img src="img/nuevasolicitud.png" alt="Crear Nueva Solicitud">
+                            <p>Crear Nueva Solicitud</p>
+                        </a>
+                    </div>
+
+                    <div class="opcion-modulo">
+                        <a href="ver_tickets.php">
+                            <img src="img/consultarticket.png" alt="Consultar mis Tickets">
+                            <p>Consultar mis Tickets</p>
+                        </a>
+                    </div>
+                </div>
+            </main>
         </div>
     </div>
+
+    <footer style="background: transparent; padding: 18px 30px; text-align:center; font-size:11px; color:#666; margin-top:20px;">
+        <p style="margin:0;">Fondo para el Desarrollo Agrario Socialista (FONDAS) - Venezuela</p>
+        <p style="margin:0;">Desarrollado por el Departamento de Tecnología e Información © 2026</p>
+    </footer>
 
 </body>
 </html>

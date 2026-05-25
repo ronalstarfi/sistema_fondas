@@ -20,19 +20,37 @@ session_start();
             background-repeat: no-repeat;
             background-size: cover;
             display: flex;
-            justify-content: flex-end; /* Alineación a la derecha según el modelo */
+            justify-content: flex-end;
             align-items: center;
             padding-right: 8%;
+            position: relative;
+        }
+
+        .bg::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(0.7px);
+            z-index: 0;
         }
 
         .login-box {
-            background-color: rgba(255, 255, 255, 0.2); /* Aún más transparente */
-            width: 380px;
-            padding: 45px 35px;
-            border-radius: 10px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            position: relative;
+            z-index: 1;
+            background-color: rgba(255, 255, 255, 0.90);
+            width: 360px;
+            padding: 40px 30px;
+            border-radius: 18px;
+            box-shadow: 0 18px 45px rgba(33, 45, 69, 0.10), 0 0 0 1px rgba(46, 125, 50, 0.08);
             text-align: center;
-            backdrop-filter: blur(4px); /* Desenfoque más suave */
+            border: 1px solid rgba(46, 125, 50, 0.35);
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+        }
+
+        .login-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 22px 55px rgba(33, 45, 69, 0.14), 0 0 25px rgba(46, 125, 50, 0.18);
         }
 
         /* Logo institucional (logo1.png) destacado */
@@ -84,43 +102,44 @@ session_start();
             background-color: #2e7d32; 
             color: white;
             border: none;
-            padding: 15px;
+            padding: 14px;
             width: 100%;
             cursor: pointer;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 15px;
             text-transform: uppercase;
-            margin-top: 20px;
-            border-radius: 5px;
+            margin-top: 18px;
+            border-radius: 8px;
             transition: background 0.3s, transform 0.2s;
+            box-shadow: 0 10px 18px rgba(46, 125, 50, 0.18);
         }
 
-        .btn-ingresar:hover { 
-            background-color: #1b5e20; /* Tono más oscuro para el hover */
+        .btn-ingresar:hover {
+            background-color: #259143;
             transform: translateY(-2px);
         }
 
         /* Botón de Registro */
         .btn-registrar {
-            background-color: #6c757d; /* Gris para botón secundario */
-            color: white;
-            border: none;
-            padding: 15px;
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #d1d1d1;
+            padding: 14px;
             width: 100%;
             cursor: pointer;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 15px;
             text-transform: uppercase;
-            margin-top: 10px;
-            border-radius: 5px;
+            margin-top: 12px;
+            border-radius: 8px;
             transition: background 0.3s, transform 0.2s;
             display: inline-block;
             text-decoration: none;
             box-sizing: border-box;
         }
 
-        .btn-registrar:hover { 
-            background-color: #5c636a; 
+        .btn-registrar:hover {
+            background-color: #e2e2e2;
             transform: translateY(-2px);
         }
 

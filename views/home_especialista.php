@@ -51,45 +51,78 @@ if ($db) {
             flex-direction: column;
         }
 
-        .banner-container {
-            width: 90%;
-            max-width: 950px;
-            margin: 10px auto 0;
-            background: white;
-            border-radius: 12px 12px 0 0;
+        .wrapper {
+            max-width: 1100px;
+            margin: 20px auto;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            background: white;
+            display: flex;
+            flex-direction: column;
+            /* Hacer que la caja blanca ocupe casi toda la altura de la ventana */
+            min-height: calc(100vh - 120px);
         }
 
-        .banner-container img {
+        .cintillo-container, .banner-container {
             width: 100%;
-            height: auto;
-            display: block;
+            margin: 0;
+            background: white;
+            overflow: hidden;
         }
 
-        .header-info {
-            width: 90%;
-            max-width: 950px;
+        .cintillo-container img, .banner-container img {
+            width: 100%;
+            max-height: 140px;
+            object-fit: contain;
+            display: block;
             margin: 0 auto;
+        }
+
+        .navbar {
             background-color: #2e7d32;
             color: white;
-            padding: 8px 20px;
+            padding: 12px 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-radius: 0 0 12px 12px;
-            box-sizing: border-box;
-            font-size: 14px;
+            font-size: 0.95rem;
         }
 
-        .header-info a {
-            background-color: #d32f2f;
-            color: white !important;
-            padding: 4px 12px;
-            border-radius: 4px;
-            text-decoration: none;
-            font-weight: bold;
+        .navbar .brand { font-weight: 700; text-transform: uppercase; }
+        .container {
+            background: white;
+            padding: 40px 30px;
+            width: 100%;
+            box-sizing: border-box;
+            min-height: 420px;
+            /* Permitir que el contenido central crezca y empuje el footer al final */
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
         }
+
+        .user-dropdown { position: relative; display: inline-block; }
+        .user-dropdown-btn { 
+            background: transparent; color: white; border: none; cursor: pointer; 
+            font-size: 14px; font-family: inherit; display: flex; align-items: center; gap: 8px;
+        }
+        .user-dropdown-btn:focus { outline: none; }
+        .dropdown-arrow { font-size: 10px; }
+        .user-dropdown-content {
+            display: none; position: absolute; right: 0; top: 100%;
+            background-color: #fff; min-width: 160px;
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+            border-radius: 6px; overflow: hidden; z-index: 100;
+        }
+        .user-dropdown:hover .user-dropdown-content { display: block; }
+        .user-dropdown-content a {
+            color: #333 !important; padding: 12px 16px; text-decoration: none;
+            display: block; background: transparent; font-weight: normal; border-radius: 0;
+        }
+        .user-dropdown-content a:hover { background-color: #f1f8e9; color: #2e7d32 !important; }
+        .user-dropdown-content .logout-link { color: #d32f2f !important; font-weight: bold; border-top: 1px solid #eee; }
+        .user-dropdown-content .logout-link:hover { background-color: #ffebee; color: #b71c1c !important; }
 
         .panel-title {
             text-align: center;
@@ -104,7 +137,9 @@ if ($db) {
             flex: 1; 
             display: flex;
             justify-content: center;
-            align-items: center;
+            /* Subir los módulos: alineamos al inicio en vertical */
+            align-items: flex-start;
+            padding-top: 40px; /* pequeño espacio superior para separar del título */
         }
 
         .icon-container {
@@ -149,104 +184,37 @@ if ($db) {
             padding: 15px;
             color: #666;
             font-size: 11px;
+            /* Empuja el footer hacia el fondo de la caja blanca */
+            margin-top: auto;
+            background: transparent;
         }
     </style>
-    <!-- SweetAlert2 para mensajes premium -->
-    <script src="../assets/sweetalert2.all.min.js"></script>
 </head>
-
 <body>
 
-    <div class="banner-container">
-        <img src="../img/logo3.png" alt="Banner FONDAS">
-    </div>
+    <div class="wrapper">
+        <div class="cintillo-container">
+            <img src="../img/logo3.png" alt="Banner FONDAS">
+        </div>
 
-    <div class="header-info">
-        <div><span>Sistema de Gestión de Incidencias</span></div>
-        <style>
-            .user-dropdown { position: relative; display: inline-block; margin-left: 10px; }
-            .user-dropdown-btn { 
-                background: transparent; color: white; border: none; cursor: pointer; 
-                font-size: 14px; font-family: inherit; display: flex; align-items: center; gap: 8px;
-            }
-            .user-dropdown-btn:focus { outline: none; }
-            .user-dropdown-content {
-                display: none; position: absolute; right: 0; top: 100%;
-                background-color: #fff; min-width: 160px;
-                box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
-                border-radius: 6px; overflow: hidden; z-index: 100;
-                margin-top: 8px;
-            }
-            .user-dropdown-content.show { display: block; }
-
-            .user-dropdown-content a {
-                color: #333 !important; padding: 12px 16px; text-decoration: none;
-                display: block; background: transparent; font-weight: normal; border-radius: 0;
-            }
-            .user-dropdown-content a:hover { background-color: #f1f8e9; color: #2e7d32 !important; }
-            .user-dropdown-content .logout-link { color: #d32f2f !important; font-weight: bold; border-top: 1px solid #eee; }
-            .user-dropdown-content .logout-link:hover { background-color: #ffebee; color: #b71c1c !important; }
-            /* Puente invisible para evitar que se cierre el menú al mover el ratón */
-            .user-dropdown-content::before {
-                content: '';
-                position: absolute;
-                top: -15px;
-                left: 0;
-                width: 100%;
-                height: 15px;
-                background: transparent;
-            }
-        </style>
-
-        <div class="user-dropdown">
-            <button class="user-dropdown-btn" id="userMenuBtn">
-                <span>Bienvenido(a): <strong><?php echo htmlspecialchars(explode(' ', $_SESSION['nombre'])[0]); ?></strong></span>
-                <span style="font-size: 10px;">▼</span>
-            </button>
-            <div class="user-dropdown-content" id="userMenuContent">
-                <a href="#" class="logout-link" id="logoutBtn">Cerrar Sesión</a>
+        <div class="navbar">
+            <div class="brand">Sistema de Gestión de Incidencias</div>
+            <div class="user-dropdown">
+                <button class="user-dropdown-btn">
+                    <span>Bienvenido(a): <strong><?php echo htmlspecialchars($_SESSION['nombre']); ?></strong></span>
+                    <span style="font-size: 10px; margin-left:8px;">▼</span>
+                </button>
+                <div class="user-dropdown-content">
+                    <a href="../logout.php" class="logout-link">Cerrar Sesión</a>
+                </div>
             </div>
         </div>
-        <script>
-            document.getElementById('userMenuBtn').addEventListener('click', function(e) {
-                e.stopPropagation();
-                document.getElementById('userMenuContent').classList.toggle('show');
-            });
 
-            document.getElementById('logoutBtn').addEventListener('click', function(e) {
-                e.preventDefault();
-                Swal.fire({
-                    title: '¿Cerrar Sesión?',
-                    text: "Se guardará tu actividad y saldrás del sistema de forma segura.",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#2e7d32',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Sí, Salir',
-                    cancelButtonText: 'Cancelar',
-                    background: '#ffffff',
-                    color: '#1b5e20',
-                    backdrop: `rgba(0,0,123,0.1)`
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = '../logout.php';
-                    }
-                });
-            });
+        <div class="container">
+            <h2 class="panel-title">PANEL DE CONTROL <?php echo htmlspecialchars(strtoupper($titulo_dinamico)); ?></h2>
 
-            window.addEventListener('click', function() {
-                document.getElementById('userMenuContent').classList.remove('show');
-            });
-        </script>
-
-
-    </div>
-
-    <!-- TÍTULO DINÁMICO -->
-    <h2 class="panel-title">PANEL DE CONTROL <?php echo htmlspecialchars(strtoupper($titulo_dinamico)); ?></h2>
-
-    <main>
-        <div class="icon-container">
+            <main>
+                <div class="icon-container">
             <!-- Módulo de Tickets: Visible para todos -->
             <div class="opcion-modulo">
                 <a href="../ver_tickets.php">
@@ -275,16 +243,18 @@ if ($db) {
                 <div class="opcion-modulo">
                     <a href="../auditoria_sistema.php">
                         <img src="../img/auditoria2.png" alt="Auditoría">
-                        <p>AUDITORÍA</p>
+                        <p>AUDITORÍA FORENSE</p>
                     </a>
                 </div>
             <?php endif; ?>
-        </div>
-    </main>
+                </div> <!-- .icon-container -->
+            </main>
+        </div> <!-- .container -->
+    </div> <!-- .wrapper -->
 
-    <footer>
-        <p>Fondo para el Desarrollo Agrario Socialista (FONDAS) - Venezuela</p>
-        <p>Desarrollado por el Departamento de Tecnología e Información © 2026</p>
+    <footer style="background: transparent; padding: 18px 30px; text-align:center; font-size:11px; color:#666; margin-top:20px;">
+        <p style="margin:0;">Fondo para el Desarrollo Agrario Socialista (FONDAS) - Venezuela</p>
+        <p style="margin:0;">Desarrollado por el Departamento de Tecnología e Información © 2026</p>
     </footer>
 
 </body>
