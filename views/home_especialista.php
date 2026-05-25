@@ -56,6 +56,12 @@ if ($db) {
             margin: 20px auto;
             box-shadow: 0 4px 10px rgba(0,0,0,0.08);
             border-radius: 10px;
+        .banner-container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+            background: white;
+            border-radius: 0;
             overflow: hidden;
             background: white;
             display: flex;
@@ -87,6 +93,25 @@ if ($db) {
             justify-content: space-between;
             align-items: center;
             font-size: 0.95rem;
+            max-height: 140px;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .header-info {
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+            background-color: #2e7d32;
+            color: white;
+            padding: 10px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 0;
+            box-sizing: border-box;
+            font-size: 14px;
         }
 
         .navbar .brand { font-weight: 700; text-transform: uppercase; }
@@ -215,6 +240,46 @@ if ($db) {
 
             <main>
                 <div class="icon-container">
+    <div class="header-info">
+        <div><span>Sistema de Gestión de Incidencias</span></div>
+        <style>
+            .user-dropdown { position: relative; display: inline-block; margin-left: 10px; }
+            .user-dropdown-btn { 
+                background: transparent; color: white; border: none; cursor: pointer; 
+                font-size: 14px; font-family: inherit; display: flex; align-items: center; gap: 8px;
+            }
+            .user-dropdown-btn:focus { outline: none; }
+            .user-dropdown-content {
+                display: none; position: absolute; right: 0; top: 100%;
+                background-color: #fff; min-width: 160px;
+                box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+                border-radius: 6px; overflow: hidden; z-index: 100;
+            }
+            .user-dropdown:hover .user-dropdown-content { display: block; }
+            .user-dropdown-content a {
+                color: #333 !important; padding: 12px 16px; text-decoration: none;
+                display: block; background: transparent; font-weight: normal; border-radius: 0;
+            }
+            .user-dropdown-content a:hover { background-color: #f1f8e9; color: #2e7d32 !important; }
+            .user-dropdown-content .logout-link { color: #d32f2f !important; font-weight: bold; border-top: 1px solid #eee; }
+            .user-dropdown-content .logout-link:hover { background-color: #ffebee; color: #b71c1c !important; }
+        </style>
+        <div class="user-dropdown">
+            <button class="user-dropdown-btn">
+                <span>Bienvenido(a): <strong><?php echo htmlspecialchars($_SESSION['nombre']); ?></strong></span>
+                <span style="font-size: 10px;">▼</span>
+            </button>
+            <div class="user-dropdown-content">
+                <a href="../logout.php" class="logout-link">Cerrar Sesión</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- TÍTULO DINÁMICO -->
+    <h2 class="panel-title">PANEL DE CONTROL <?php echo htmlspecialchars(strtoupper($titulo_dinamico)); ?></h2>
+
+    <main>
+        <div class="icon-container">
             <!-- Módulo de Tickets: Visible para todos -->
             <div class="opcion-modulo">
                 <a href="../ver_tickets.php">

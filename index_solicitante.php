@@ -167,6 +167,11 @@ $nombre_usuario = $_SESSION['nombre'] ?? 'Usuario';
             margin-top: auto;
             background: transparent;
         }
+        .btn:hover { opacity: 0.8; transform: translateY(-2px); }
+        
+        /* Enlaces específicos corregidos según tus archivos */
+        .btn-new { background-color: #2e7d32; }
+        .btn-view { background-color: #1565c0; }
     </style>
 </head>
 <body>

@@ -34,6 +34,19 @@ if (isset($_SESSION['user_id'])) {
 
 // 3. Lógica para buscar el solicitante cuando no hay sesión (usuario externo)
 if (!isset($_SESSION['user_id']) && isset($_POST['buscar_cedula'])) {
+$esEspecialista = $rol === 'Especialista';
+
+// 2. Si el usuario es especialista, cargamos su información directamente
+if ($esEspecialista && isset($_SESSION['user_id'])) {
+    $query = "SELECT ci, especialista AS nombre, area_especifica AS ubicacion FROM especialista WHERE id = :id LIMIT 1";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':id', $_SESSION['user_id']);
+    $stmt->execute();
+    $solicitante = $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+// 3. Lógica para buscar el solicitante cuando no es especialista
+if (!$esEspecialista && isset($_POST['buscar_cedula'])) {
     $cedula_buscada = $_POST['ci_busqueda'];
 
     if ($db) {
@@ -129,7 +142,11 @@ if (!isset($_SESSION['user_id']) && isset($_POST['buscar_cedula'])) {
 
                     <div class="p-4">
                         <!-- Aquí empieza tu formulario de búsqueda de cédula -->
+<<<<<<< HEAD
                         <?php if (!isset($_SESSION['user_id'])): ?>
+=======
+                        <?php if (!$esEspecialista): ?>
+>>>>>>> 399eb742f9e995a7ee16039462f77dd3c88a60e8
                         <form method="POST" class="row g-3 mb-4">
                             <div class="col-md-8">
                                 <label class="form-label fw-bold">Cédula del Solicitante</label>

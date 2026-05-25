@@ -125,6 +125,165 @@ if ($rol_sesion !== 'Solicitante') {
         .info-secundaria { color: #777; font-size: 0.82em; display: block; margin-top: 3px; }
         .link-id { color: #0288d1; font-weight: bold; text-decoration: none; border: 1px solid #0288d1; padding: 3px 10px; border-radius: 4px; display: inline-block; }
         
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 0;
+        }
+
+        .wrapper {
+            max-width: 100%;
+            margin: 0;
+        }
+
+        .cintillo-container {
+            background: white;
+            padding: 0;
+            border-radius: 0;
+            text-align: center;
+            text-align: center;
+        }
+
+        .cintillo {
+            width: 100%;
+            max-height: 140px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .container {
+            background: white;
+            padding: 25px 40px;
+            border-radius: 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #1b5e20;
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .user-info {
+            background: #f1f8e9;
+            padding: 10px 15px;
+            border-radius: 5px;
+            border-left: 5px solid #2e7d32;
+            font-size: 0.9em;
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: white;
+        }
+
+        th {
+            background-color: #2e7d32;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-size: 0.85em;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        .status-pill {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 11px;
+            text-transform: uppercase;
+            border: 1px solid;
+            display: inline-block;
+            min-width: 90px;
+            text-align: center;
+        }
+
+        .abierto {
+            background: #fffde7;
+            color: #fbc02d;
+            border-color: #fbc02d;
+        }
+
+        .proceso {
+            background: #e1f5fe;
+            color: #0288d1;
+            border-color: #0288d1;
+        }
+
+        .urgente {
+            background: #ffebee;
+            color: #d32f2f;
+            border-color: #d32f2f;
+        }
+
+        .cerrado {
+            background: #f5f5f5;
+            color: #9e9e9e;
+            border-color: #bdbdbd;
+        }
+
+        .btn-aceptar {
+            background: #0288d1;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+
+        .btn-regresar {
+            background: #2e7d32;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .nombre-solicitante {
+            color: #2e7d32;
+            font-weight: bold;
+            display: block;
+        }
+
+        .info-secundaria {
+            color: #777;
+            font-size: 0.82em;
+            display: block;
+            margin-top: 3px;
+        }
+
+        .link-id {
+            color: #0288d1;
+            font-weight: bold;
+            text-decoration: none;
+            border: 1px solid #0288d1;
+            padding: 3px 10px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
         /* Estilos Barra de Herramientas Unificada */
         .table-toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; background: #f1f8e9; padding: 15px 20px; border-radius: 8px; border: 1px solid #c8e6c9; margin-bottom: 20px; gap: 15px; }
         .date-filters { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
@@ -163,6 +322,7 @@ if ($rol_sesion !== 'Solicitante') {
         @keyframes highlightTicket { from { background-color: rgba(255,243,224,0.95); } to { background-color: transparent; } }
         
         /* Estilos de Paginación e Info (Inferior) */
+<<<<<<< HEAD
         .bottom-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; flex-wrap: wrap; padding-top: 15px; border-top: 1px solid #eee; }
         .dataTables_wrapper .dataTables_info { margin: 0 !important; color: #666; font-size: 0.9em; font-style: italic; clear: none !important; padding: 0 !important; }
         .dataTables_wrapper .dataTables_paginate { margin: 0 !important; float: none !important; text-align: right !important; }
@@ -170,6 +330,95 @@ if ($rol_sesion !== 'Solicitante') {
         .dataTables_wrapper .dataTables_paginate .paginate_button:hover { background: #f1f8e9 !important; border-color: #2e7d32 !important; color: #2e7d32 !important; }
         .dataTables_wrapper .dataTables_paginate .paginate_button.current, 
         .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover { background: #2e7d32 !important; color: white !important; border-color: #2e7d32 !important; font-weight: bold; }
+=======
+        .bottom-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .dataTables_wrapper .dataTables_info {
+            margin: 0 !important;
+            color: #666;
+            font-size: 0.9em;
+            font-style: italic;
+            clear: none !important;
+            padding: 0 !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate {
+            margin: 0 !important;
+            float: none !important;
+            text-align: right !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            padding: 6px 14px !important;
+            margin-left: 4px;
+            border: 1px solid #e0e0e0 !important;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #555 !important;
+            text-decoration: none;
+            background: white !important;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: #f1f8e9 !important;
+            border-color: #2e7d32 !important;
+            color: #2e7d32 !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+            background: #2e7d32 !important;
+            color: white !important;
+            border-color: #2e7d32 !important;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            .date-filters {
+                flex-direction: column;
+                align-items: stretch;
+                width: 100%;
+            }
+            .table-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-box-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+                width: 100%;
+            }
+            .dataTables_wrapper .dataTables_filter input {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            .container {
+                padding: 15px;
+            }
+            .btn-regresar {
+                width: 100%;
+                text-align: center;
+            }
+            #custom-dt-search {
+                width: 100%;
+            }
+        }
+>>>>>>> 399eb742f9e995a7ee16039462f77dd3c88a60e8
     </style>
     <!-- DataTables CSS -->
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.css">
@@ -180,6 +429,7 @@ if ($rol_sesion !== 'Solicitante') {
             <img src="img/logo3.png" alt="Cintillo FONDAS" class="cintillo">
         </div>
 
+<<<<<<< HEAD
         <div class="container">
             <div class="header-top">
                 <div>
@@ -217,7 +467,23 @@ if ($rol_sesion !== 'Solicitante') {
                     <span id="notificationMessage">Para recibir alertas instantáneas de nuevos tickets, habilite las notificaciones del navegador. Si ya rechazó, revise la configuración de notificaciones de su navegador y vuelva a esta página.</span>
                     <button id="btnEnableNotifications" class="btn-aceptar">Activar notificaciones</button>
                 </div>
+=======
+        <nav style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; background-color: #2e7d32; color: white; padding: 12px 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+            <div style="font-weight: bold; font-size: 1.1rem; display: flex; align-items: center;">
+                <span style="margin-right: 8px;">📋</span> PANEL DE GESTIÓN DE ESPECIALISTAS
+>>>>>>> 399eb742f9e995a7ee16039462f77dd3c88a60e8
             </div>
+            <div style="display: flex; align-items: center; font-size: 0.9em; flex-wrap: wrap; gap: 15px;">
+                <span style="background: white; color: #333; padding: 6px 15px; border-radius: 50px; font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    Usuario: <strong><?php echo htmlspecialchars($nombre_usuario); ?></strong>
+                </span>
+                <a href="<?php echo ($rol_sesion === 'Solicitante') ? 'index_solicitante.php' : 'views/home_especialista.php'; ?>" style="color: white; text-decoration: none; border: 1px solid white; padding: 6px 15px; border-radius: 50px; font-weight: bold;">
+                    Volver
+                </a>
+            </div>
+        </nav>
+
+        <div class="container">
 
             <!-- Toolbar Unificada (Fechas + Buscador) -->
             <div class="table-toolbar">
@@ -228,7 +494,12 @@ if ($rol_sesion !== 'Solicitante') {
                 </div>
                 <div id="custom-dt-search"></div>
             </div>
+<<<<<<< HEAD
             
+=======
+
+            <div style="overflow-x: auto; width: 100%;">
+>>>>>>> 399eb742f9e995a7ee16039462f77dd3c88a60e8
             <table id="tablaTickets">
                 <thead>
                     <tr>
@@ -294,6 +565,7 @@ if ($rol_sesion !== 'Solicitante') {
                     <?php endforeach; ?>
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 
