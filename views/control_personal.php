@@ -72,7 +72,7 @@ $historial_asistencia = $stmt_h->fetchAll(PDO::FETCH_ASSOC);
         }
         body { background-color: var(--bg-gris); font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
         
-        .cintillo-fondas { background-color: var(--verde-fondas); color: white; padding: 12px 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+        .cintillo-fondas { background-color: #2e7d32; color: white; padding: 12px 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
         .sidebar-stats { background: white; border-right: 1px solid #dee2e6; min-height: calc(100vh - 70px); padding: 25px; }
         
         .stat-card { 
@@ -106,8 +106,8 @@ $historial_asistencia = $stmt_h->fetchAll(PDO::FETCH_ASSOC);
 </head>
 <body>
 
-<div class="bg-white text-center py-3 border-bottom">
-    <img src="../img/logo3.png" style="height: 60px;" alt="FONDAS">
+<div class="bg-white text-center shadow-sm" style="padding:0; overflow:hidden;">
+    <img src="../img/logo3.png" style="width:100%; max-height:140px; object-fit:contain; display:block;" alt="FONDAS">
 </div>
 
 <nav class="cintillo-fondas d-flex justify-content-between align-items-center">
@@ -115,7 +115,7 @@ $historial_asistencia = $stmt_h->fetchAll(PDO::FETCH_ASSOC);
     <div class="small">
         <span class="me-3">Usuario: <strong><?php echo $nombre_usuario_logueado; ?></strong></span>
         <a href="home_especialista.php" class="text-white text-decoration-none border px-3 py-1 rounded-pill">
-            <i class="fas fa-home me-1"></i> Inicio
+            <i class="fas fa-arrow-left me-1"></i> Volver
         </a>
     </div>
 </nav>

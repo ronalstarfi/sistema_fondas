@@ -1,7 +1,11 @@
 <?php
+session_start();
 require_once 'config/database.php';
 $database = new Database();
 $db = $database->getConnection();
+
+$rol = $_SESSION['rol'] ?? '';
+$esEspecialista = $rol === 'Especialista';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $ci = $_POST['ci'];
@@ -14,13 +18,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $db->beginTransaction();
 
-        // 1. Buscamos al técnico con menos carga en el área seleccionada
-        $query_tec = "SELECT id FROM especialista WHERE area_especifica = :area ORDER BY id ASC LIMIT 1";
-        $stmt_tec = $db->prepare($query_tec);
-        $stmt_tec->bindParam(':area', $area);
-        $stmt_tec->execute();
-        $tecnico = $stmt_tec->fetch(PDO::FETCH_ASSOC);
-        $tecnico_id = $tecnico ? $tecnico['id'] : null;
+        // 1. Si el ticket lo genera un especialista, se asigna a sí mismo; en caso contrario, buscamos el técnico con menos carga en el área seleccionada
+        if ($esEspecialista && isset($_SESSION['user_id'])) {
+            $tecnico_id = $_SESSION['user_id'];
+        } else {
+            $query_tec = "SELECT id FROM especialista WHERE area_especifica = :area ORDER BY id ASC LIMIT 1";
+            $stmt_tec = $db->prepare($query_tec);
+            $stmt_tec->bindParam(':area', $area);
+            $stmt_tec->execute();
+            $tecnico = $stmt_tec->fetch(PDO::FETCH_ASSOC);
+            $tecnico_id = $tecnico ? $tecnico['id'] : null;
+        }
 
         // 2. Insertamos la solicitud
         $sql = "INSERT INTO solicitud (ci, tsolicitud, descripcion, estatus, fechainicial, especialista_id) 

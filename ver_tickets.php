@@ -126,31 +126,33 @@ $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f4f7f6;
             margin: 0;
-            padding: 20px;
+            padding: 0;
         }
 
         .wrapper {
-            max-width: 1350px;
-            margin: auto;
+            max-width: 100%;
+            margin: 0;
         }
 
         .cintillo-container {
             background: white;
-            padding: 10px;
-            border-radius: 10px 10px 0 0;
+            padding: 0;
+            border-radius: 0;
             text-align: center;
-            border-bottom: 4px solid #2e7d32;
+            text-align: center;
         }
 
         .cintillo {
-            max-width: 100%;
-            height: auto;
+            width: 100%;
+            max-height: 140px;
+            object-fit: contain;
+            display: block;
         }
 
         .container {
             background: white;
-            padding: 25px;
-            border-radius: 0 0 10px 10px;
+            padding: 25px 40px;
+            border-radius: 0;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
@@ -435,6 +437,42 @@ $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
             border-color: #2e7d32 !important;
             font-weight: bold;
         }
+
+        @media (max-width: 768px) {
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            .date-filters {
+                flex-direction: column;
+                align-items: stretch;
+                width: 100%;
+            }
+            .table-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-box-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+                width: 100%;
+            }
+            .dataTables_wrapper .dataTables_filter input {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            .container {
+                padding: 15px;
+            }
+            .btn-regresar {
+                width: 100%;
+                text-align: center;
+            }
+            #custom-dt-search {
+                width: 100%;
+            }
+        }
     </style>
     <!-- DataTables CSS -->
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.css">
@@ -447,18 +485,21 @@ $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         </div>
 
-        <div class="container">
-            <div class="header-top">
-                <div>
-                    <h2>Panel de Gestión de Especialistas</h2>
-                    <div class="user-info">
-                        Usuario: <strong><?php echo htmlspecialchars($nombre_usuario); ?></strong> |
-                        <?php echo htmlspecialchars($info_perfil); ?>
-                    </div>
-                </div>
-                <a href="<?php echo ($rol_sesion === 'Solicitante') ? 'index_solicitante.php' : 'views/home_especialista.php'; ?>"
-                    class="btn-regresar">Volver</a>
+        <nav style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; background-color: #2e7d32; color: white; padding: 12px 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+            <div style="font-weight: bold; font-size: 1.1rem; display: flex; align-items: center;">
+                <span style="margin-right: 8px;">📋</span> PANEL DE GESTIÓN DE ESPECIALISTAS
             </div>
+            <div style="display: flex; align-items: center; font-size: 0.9em; flex-wrap: wrap; gap: 15px;">
+                <span style="background: white; color: #333; padding: 6px 15px; border-radius: 50px; font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    Usuario: <strong><?php echo htmlspecialchars($nombre_usuario); ?></strong>
+                </span>
+                <a href="<?php echo ($rol_sesion === 'Solicitante') ? 'index_solicitante.php' : 'views/home_especialista.php'; ?>" style="color: white; text-decoration: none; border: 1px solid white; padding: 6px 15px; border-radius: 50px; font-weight: bold;">
+                    Volver
+                </a>
+            </div>
+        </nav>
+
+        <div class="container">
 
             <!-- Toolbar Unificada (Fechas + Buscador) -->
             <div class="table-toolbar">
@@ -470,6 +511,7 @@ $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div id="custom-dt-search"></div>
             </div>
 
+            <div style="overflow-x: auto; width: 100%;">
             <table id="tablaTickets">
                 <thead>
                     <tr>
@@ -548,6 +590,7 @@ $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <?php endforeach; ?>
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 

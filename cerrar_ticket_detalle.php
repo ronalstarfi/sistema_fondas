@@ -57,26 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['confirmar_cierre'])) {
             ':id' => $id_ticket
         ]);
 
-        // --- INSERCIÓN DE AUDITORÍA FORENSE ---
-        $ip = $_SERVER['REMOTE_ADDR'] ?? 'Desconocida';
-        $ua = $_SERVER['HTTP_USER_AGENT'] ?? 'Desconocido';
-        $nombre_usuario = $_SESSION['nombre'] ?? 'Usuario';
-        
-        $query_ci = "SELECT ci FROM especialista WHERE id = :id LIMIT 1";
-        $stmt_ci = $db->prepare($query_ci);
-        $stmt_ci->execute([':id' => $_SESSION['user_id']]);
-        $ci_esp = $stmt_ci->fetch(PDO::FETCH_ASSOC)['ci'] ?? 'N/A';
-
-        $audit_sql = "INSERT INTO auditoria_solicitudes (id_solicitud, estatus_anterior, estatus_nuevo, usuario_que_cambio, cedula_usuario, rol_usuario, direccion_ip, user_agent) VALUES (:id_sol, 'EN PROCESO', 'CERRADO', :nombre, :ci, :rol, :ip, :ua)";
-        $db->prepare($audit_sql)->execute([
-            ':id_sol' => $id_ticket,
-            ':nombre' => $nombre_usuario,
-            ':ci' => $ci_esp,
-            ':rol' => $rol,
-            ':ip' => $ip,
-            ':ua' => $ua
-        ]);
-
         $db->commit();
         
         // MENSAJE DE ÉXITO CON TU DISEÑO ORIGINAL

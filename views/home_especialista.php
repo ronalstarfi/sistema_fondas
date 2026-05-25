@@ -52,32 +52,34 @@ if ($db) {
         }
 
         .banner-container {
-            width: 90%;
-            max-width: 950px;
-            margin: 10px auto 0;
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
             background: white;
-            border-radius: 12px 12px 0 0;
+            border-radius: 0;
             overflow: hidden;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
         .banner-container img {
             width: 100%;
-            height: auto;
+            max-height: 140px;
+            object-fit: contain;
             display: block;
+            margin: 0 auto;
         }
 
         .header-info {
-            width: 90%;
-            max-width: 950px;
-            margin: 0 auto;
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
             background-color: #2e7d32;
             color: white;
-            padding: 8px 20px;
+            padding: 10px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-radius: 0 0 12px 12px;
+            border-radius: 0;
             box-sizing: border-box;
             font-size: 14px;
         }
@@ -151,10 +153,7 @@ if ($db) {
             font-size: 11px;
         }
     </style>
-    <!-- SweetAlert2 para mensajes premium -->
-    <script src="../assets/sweetalert2.all.min.js"></script>
 </head>
-
 <body>
 
     <div class="banner-container">
@@ -175,10 +174,8 @@ if ($db) {
                 background-color: #fff; min-width: 160px;
                 box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
                 border-radius: 6px; overflow: hidden; z-index: 100;
-                margin-top: 8px;
             }
-            .user-dropdown-content.show { display: block; }
-
+            .user-dropdown:hover .user-dropdown-content { display: block; }
             .user-dropdown-content a {
                 color: #333 !important; padding: 12px 16px; text-decoration: none;
                 display: block; background: transparent; font-weight: normal; border-radius: 0;
@@ -186,60 +183,16 @@ if ($db) {
             .user-dropdown-content a:hover { background-color: #f1f8e9; color: #2e7d32 !important; }
             .user-dropdown-content .logout-link { color: #d32f2f !important; font-weight: bold; border-top: 1px solid #eee; }
             .user-dropdown-content .logout-link:hover { background-color: #ffebee; color: #b71c1c !important; }
-            /* Puente invisible para evitar que se cierre el menú al mover el ratón */
-            .user-dropdown-content::before {
-                content: '';
-                position: absolute;
-                top: -15px;
-                left: 0;
-                width: 100%;
-                height: 15px;
-                background: transparent;
-            }
         </style>
-
         <div class="user-dropdown">
-            <button class="user-dropdown-btn" id="userMenuBtn">
-                <span>Bienvenido(a): <strong><?php echo htmlspecialchars(explode(' ', $_SESSION['nombre'])[0]); ?></strong></span>
+            <button class="user-dropdown-btn">
+                <span>Bienvenido(a): <strong><?php echo htmlspecialchars($_SESSION['nombre']); ?></strong></span>
                 <span style="font-size: 10px;">▼</span>
             </button>
-            <div class="user-dropdown-content" id="userMenuContent">
-                <a href="#" class="logout-link" id="logoutBtn">Cerrar Sesión</a>
+            <div class="user-dropdown-content">
+                <a href="../logout.php" class="logout-link">Cerrar Sesión</a>
             </div>
         </div>
-        <script>
-            document.getElementById('userMenuBtn').addEventListener('click', function(e) {
-                e.stopPropagation();
-                document.getElementById('userMenuContent').classList.toggle('show');
-            });
-
-            document.getElementById('logoutBtn').addEventListener('click', function(e) {
-                e.preventDefault();
-                Swal.fire({
-                    title: '¿Cerrar Sesión?',
-                    text: "Se guardará tu actividad y saldrás del sistema de forma segura.",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#2e7d32',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Sí, Salir',
-                    cancelButtonText: 'Cancelar',
-                    background: '#ffffff',
-                    color: '#1b5e20',
-                    backdrop: `rgba(0,0,123,0.1)`
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = '../logout.php';
-                    }
-                });
-            });
-
-            window.addEventListener('click', function() {
-                document.getElementById('userMenuContent').classList.remove('show');
-            });
-        </script>
-
-
     </div>
 
     <!-- TÍTULO DINÁMICO -->
@@ -275,7 +228,7 @@ if ($db) {
                 <div class="opcion-modulo">
                     <a href="../auditoria_sistema.php">
                         <img src="../img/auditoria2.png" alt="Auditoría">
-                        <p>AUDITORÍA</p>
+                        <p>AUDITORÍA FORENSE</p>
                     </a>
                 </div>
             <?php endif; ?>
