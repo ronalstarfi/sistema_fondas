@@ -107,7 +107,7 @@ $historial_asistencia = $stmt_h->fetchAll(PDO::FETCH_ASSOC);
 <body>
 
 <div class="bg-white text-center shadow-sm" style="padding:0; overflow:hidden;">
-    <img src="../img/logo3.png" style="width:100%; max-height:140px; object-fit:contain; display:block;" alt="FONDAS">
+    <img src="../img/logo3.png" style="width:100%; height:95px; object-fit:fill; display:block; margin:0;" alt="FONDAS">
 </div>
 
 <nav class="cintillo-fondas d-flex justify-content-between align-items-center">

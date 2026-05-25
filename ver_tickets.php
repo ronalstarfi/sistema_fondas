@@ -147,9 +147,10 @@ if ($rol_sesion !== 'Solicitante') {
 
         .cintillo {
             width: 100%;
-            max-height: 140px;
-            object-fit: contain;
+            height: 95px;
+            object-fit: fill;
             display: block;
+            margin: 0;
         }
 
         .container {

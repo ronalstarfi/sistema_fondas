@@ -116,8 +116,8 @@ if (!$esEspecialista && isset($_POST['buscar_cedula'])) {
                     }
                 });
                 </script>
-                    <div class="text-center p-4">
-                        <img src="img/logo3.png" alt="Cintillo FONDAS" style="max-width: 100%; height: auto;">
+                    <div class="text-center" style="padding: 0; overflow: hidden;">
+                        <img src="img/logo3.png" alt="Cintillo FONDAS" style="width: 100%; height: 95px; object-fit: fill; display: block; margin: 0;">
                     </div>
 
                     <!-- Título con la línea verde inferior -->

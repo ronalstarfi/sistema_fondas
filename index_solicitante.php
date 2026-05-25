@@ -48,10 +48,10 @@ $nombre_usuario = $_SESSION['nombre'] ?? 'Usuario';
 
         .cintillo {
             width: 100%;
-            max-height: 140px;
-            object-fit: contain;
+            height: 95px;
+            object-fit: fill;
             display: block;
-            margin: 0 auto;
+            margin: 0;
         }
 
         .navbar {

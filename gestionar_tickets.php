@@ -62,8 +62,8 @@ try {
     <div class="card shadow-lg">
         <div class="card-body p-0">
             <!-- Cintillo Institucional centrado[cite: 1] -->
-            <div class="text-center p-4 border-bottom bg-white rounded-top">
-                <img src="img/logo3.png" alt="Logo FONDAS" style="max-width: 400px; height: auto;">
+            <div class="text-center bg-white rounded-top" style="padding: 0; overflow: hidden; border-bottom: 1px solid #dee2e6;">
+                <img src="img/logo3.png" alt="Logo FONDAS" style="width: 100%; height: 95px; object-fit: fill; display: block; margin: 0;">
             </div>
 
             <div class="p-4">

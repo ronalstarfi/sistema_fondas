@@ -153,8 +153,8 @@ foreach($res_esp as $row) {
 </head>
 <body>
 
-<div class="header-moderno text-center" style="padding:10px 0; overflow:hidden;">
-    <img src="../img/logo3.png" style="width:100%; max-height:100px; object-fit:contain; display:block;" alt="FONDAS">
+<div class="header-moderno text-center" style="padding:0; overflow:hidden;">
+    <img src="../img/logo3.png" style="width:100%; height:95px; object-fit:fill; display:block;" alt="FONDAS">
 </div>
 <div class="cintillo-verde shadow">
     <span><i class="fas fa-chart-line me-2"></i>SISTEMA DE GESTIÓN DE INCIDENCIAS - PANEL DE CONTROL</span>

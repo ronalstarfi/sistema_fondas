@@ -90,8 +90,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['confirmar_cierre'])) {
     <title>Cierre de Ticket - FONDAS</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; margin: 0; padding: 0; }
-        .header-cintillo { background-color: white; padding: 15px 0; display: flex; justify-content: center; align-items: center; border-bottom: 4px solid #2e7d32; }
-        .header-cintillo img { height: 75px; object-fit: contain; }
+        .header-cintillo { background-color: white; padding: 0; display: block; border-bottom: 4px solid #2e7d32; }
+        .header-cintillo img { width: 100%; height: 95px; object-fit: fill; display: block; margin: 0; }
         .main-content { display: flex; justify-content: center; padding: 40px 20px; }
         .card { background: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 600px; overflow: hidden; }
         .card-header { background: #2e7d32; color: white; padding: 15px; text-align: center; font-weight: bold; text-transform: uppercase; }
