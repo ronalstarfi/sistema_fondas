@@ -6,7 +6,7 @@ class Database
     private $host = "localhost";
     private $db_name = "sistema_fondas";
     private $username = "root";
-    private $password = "Day123*/*";
+    // private $password = "Day123*/*";
     private $password = "PARALELEPIPEDO3312";
     public $conn;
 

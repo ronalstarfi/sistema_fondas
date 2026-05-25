@@ -322,15 +322,6 @@ if ($rol_sesion !== 'Solicitante') {
         @keyframes highlightTicket { from { background-color: rgba(255,243,224,0.95); } to { background-color: transparent; } }
         
         /* Estilos de Paginación e Info (Inferior) */
-<<<<<<< HEAD
-        .bottom-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; flex-wrap: wrap; padding-top: 15px; border-top: 1px solid #eee; }
-        .dataTables_wrapper .dataTables_info { margin: 0 !important; color: #666; font-size: 0.9em; font-style: italic; clear: none !important; padding: 0 !important; }
-        .dataTables_wrapper .dataTables_paginate { margin: 0 !important; float: none !important; text-align: right !important; }
-        .dataTables_wrapper .dataTables_paginate .paginate_button { padding: 6px 14px !important; margin-left: 4px; border: 1px solid #e0e0e0 !important; border-radius: 6px; cursor: pointer; color: #555 !important; text-decoration: none; background: white !important; font-size: 0.9em; transition: all 0.2s; }
-        .dataTables_wrapper .dataTables_paginate .paginate_button:hover { background: #f1f8e9 !important; border-color: #2e7d32 !important; color: #2e7d32 !important; }
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current, 
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover { background: #2e7d32 !important; color: white !important; border-color: #2e7d32 !important; font-weight: bold; }
-=======
         .bottom-controls {
             display: flex;
             justify-content: space-between;
@@ -418,7 +409,6 @@ if ($rol_sesion !== 'Solicitante') {
                 width: 100%;
             }
         }
->>>>>>> 399eb742f9e995a7ee16039462f77dd3c88a60e8
     </style>
     <!-- DataTables CSS -->
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.css">
@@ -428,24 +418,24 @@ if ($rol_sesion !== 'Solicitante') {
         <div class="cintillo-container">
             <img src="img/logo3.png" alt="Cintillo FONDAS" class="cintillo">
         </div>
-
-<<<<<<< HEAD
-        <div class="container">
-            <div class="header-top">
-                <div>
-                    <h2>Panel de Gestión de Especialistas</h2>
-                    <div class="user-info">
-                        Usuario: <strong><?php echo htmlspecialchars($nombre_usuario); ?></strong> | <?php echo htmlspecialchars($info_perfil); ?>
-                    </div>
-                </div>
-                <div style="display:flex; gap:10px; align-items:center;">
-                    <?php if ($rol_sesion !== 'Solicitante'): ?>
-                        <a href="registro.php" class="btn-new">CREAR NUEVA SOLICITUD</a>
-                    <?php endif; ?>
-                    <a href="<?php echo ($rol_sesion === 'Solicitante') ? 'index_solicitante.php' : 'views/home_especialista.php'; ?>" class="btn-regresar btn-back">Volver</a>
-                </div>
+        <nav style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; background-color: #2e7d32; color: white; padding: 12px 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+            <div style="font-weight: bold; font-size: 1.1rem; display: flex; align-items: center;">
+                <span style="margin-right: 8px;">📋</span> PANEL DE GESTIÓN DE ESPECIALISTAS
             </div>
+            <div style="display: flex; align-items: center; font-size: 0.9em; flex-wrap: wrap; gap: 15px;">
+                <?php if ($rol_sesion !== 'Solicitante'): ?>
+                    <a href="registro.php" style="background: linear-gradient(135deg, #43a047, #2e7d32); color: white; padding: 6px 15px; border-radius: 50px; text-decoration: none; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 1px solid white;">+ NUEVA SOLICITUD</a>
+                <?php endif; ?>
+                <span style="background: white; color: #333; padding: 6px 15px; border-radius: 50px; font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    Usuario: <strong><?php echo htmlspecialchars($nombre_usuario); ?></strong> | <?php echo htmlspecialchars($info_perfil); ?>
+                </span>
+                <a href="<?php echo ($rol_sesion === 'Solicitante') ? 'index_solicitante.php' : 'views/home_especialista.php'; ?>" style="color: white; text-decoration: none; border: 1px solid white; padding: 6px 15px; border-radius: 50px; font-weight: bold;">
+                    Volver
+                </a>
+            </div>
+        </nav>
 
+        <div class="container">
             <div id="newTicketAlert" class="new-ticket-alert" style="display:none;">
                 <div class="new-ticket-alert-content">
                     <div class="alert-left">
@@ -467,23 +457,7 @@ if ($rol_sesion !== 'Solicitante') {
                     <span id="notificationMessage">Para recibir alertas instantáneas de nuevos tickets, habilite las notificaciones del navegador. Si ya rechazó, revise la configuración de notificaciones de su navegador y vuelva a esta página.</span>
                     <button id="btnEnableNotifications" class="btn-aceptar">Activar notificaciones</button>
                 </div>
-=======
-        <nav style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; background-color: #2e7d32; color: white; padding: 12px 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
-            <div style="font-weight: bold; font-size: 1.1rem; display: flex; align-items: center;">
-                <span style="margin-right: 8px;">📋</span> PANEL DE GESTIÓN DE ESPECIALISTAS
->>>>>>> 399eb742f9e995a7ee16039462f77dd3c88a60e8
             </div>
-            <div style="display: flex; align-items: center; font-size: 0.9em; flex-wrap: wrap; gap: 15px;">
-                <span style="background: white; color: #333; padding: 6px 15px; border-radius: 50px; font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    Usuario: <strong><?php echo htmlspecialchars($nombre_usuario); ?></strong>
-                </span>
-                <a href="<?php echo ($rol_sesion === 'Solicitante') ? 'index_solicitante.php' : 'views/home_especialista.php'; ?>" style="color: white; text-decoration: none; border: 1px solid white; padding: 6px 15px; border-radius: 50px; font-weight: bold;">
-                    Volver
-                </a>
-            </div>
-        </nav>
-
-        <div class="container">
 
             <!-- Toolbar Unificada (Fechas + Buscador) -->
             <div class="table-toolbar">
@@ -494,12 +468,7 @@ if ($rol_sesion !== 'Solicitante') {
                 </div>
                 <div id="custom-dt-search"></div>
             </div>
-<<<<<<< HEAD
-            
-=======
-
             <div style="overflow-x: auto; width: 100%;">
->>>>>>> 399eb742f9e995a7ee16039462f77dd3c88a60e8
             <table id="tablaTickets">
                 <thead>
                     <tr>
