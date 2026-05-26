@@ -483,8 +483,8 @@ $logs_gen = $stmt_gen->fetchAll(PDO::FETCH_ASSOC);
                 <div class="table-toolbar">
                 <div class="date-filters">
                     <?php $hoy = date('Y-m-d'); ?>
-                    <label>Desde: <input type="date" id="min_date" value="<?php echo $hoy; ?>"></label>
-                    <label>Hasta: <input type="date" id="max_date" value="<?php echo $hoy; ?>"></label>
+                    <label>Desde: <input type="date" id="min_date" value=""></label>
+                    <label>Hasta: <input type="date" id="max_date" value=""></label>
                     <button id="clear_dates" class="btn-clear">Limpiar Filtro</button>
                 </div>
                 <div class="search-box-wrapper">
@@ -569,8 +569,8 @@ $logs_gen = $stmt_gen->fetchAll(PDO::FETCH_ASSOC);
             <div id="tabGeneral" style="display:none;">
                 <div class="table-toolbar" style="margin-bottom:20px;">
                     <div class="date-filters">
-                        <label>Desde: <input type="date" id="min_date_gen" value="<?php echo $hoy; ?>"></label>
-                        <label>Hasta: <input type="date" id="max_date_gen" value="<?php echo $hoy; ?>"></label>
+                        <label>Desde: <input type="date" id="min_date_gen" value=""></label>
+                        <label>Hasta: <input type="date" id="max_date_gen" value=""></label>
                         <button id="clear_dates_gen" class="btn-clear">Limpiar Filtro</button>
                     </div>
                     <div class="search-box-wrapper">
@@ -679,8 +679,11 @@ $logs_gen = $stmt_gen->fetchAll(PDO::FETCH_ASSOC);
         // Función personalizada de DataTables para filtrar por fechas usando el data-fecha del <td>
         $.fn.dataTable.ext.search.push(
             function (settings, data, dataIndex) {
+                if (settings.nTable.id !== 'tablaAuditoria') return true;
+
                 var minStr = $('#min_date').val();
                 var maxStr = $('#max_date').val();
+                var searchStr = $('#dt-custom-search').val();
 
                 var tr = settings.aoData[dataIndex].nTr;
                 var dateStr = $(tr).find('td:first').data('fecha'); // obtenemos YYYY-MM-DD
@@ -688,6 +691,16 @@ $logs_gen = $stmt_gen->fetchAll(PDO::FETCH_ASSOC);
                 if (!dateStr) return true;
 
                 var targetDate = new Date(dateStr + 'T00:00:00Z');
+
+                // Si no hay filtros aplicados, mostramos los registros de hoy por defecto
+                if (!minStr && !maxStr && !searchStr) {
+                    var todayStr = '<?php echo $hoy; ?>';
+                    var todayDate = new Date(todayStr + 'T00:00:00Z');
+                    if (targetDate.getTime() !== todayDate.getTime()) {
+                        return false;
+                    }
+                    return true;
+                }
 
                 if (minStr) {
                     var minDate = new Date(minStr + 'T00:00:00Z');
@@ -709,12 +722,23 @@ $logs_gen = $stmt_gen->fetchAll(PDO::FETCH_ASSOC);
                 }
                 var minStr = $('#min_date_gen').val();
                 var maxStr = $('#max_date_gen').val();
+                var searchStr = $('#dt-gen-search').val();
 
                 var tr = settings.aoData[dataIndex].nTr;
                 var dateStr = $(tr).find('td:first').data('fecha');
 
                 if (!dateStr) return true;
                 var targetDate = new Date(dateStr + 'T00:00:00Z');
+
+                // Si no hay filtros aplicados, mostramos los registros de hoy por defecto
+                if (!minStr && !maxStr && !searchStr) {
+                    var todayStr = '<?php echo $hoy; ?>';
+                    var todayDate = new Date(todayStr + 'T00:00:00Z');
+                    if (targetDate.getTime() !== todayDate.getTime()) {
+                        return false;
+                    }
+                    return true;
+                }
 
                 if (minStr) {
                     var minDate = new Date(minStr + 'T00:00:00Z');
