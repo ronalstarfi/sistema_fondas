@@ -52,6 +52,7 @@ try {
         .abierto { background-color: #fff3cd; color: #856404; }
         .enproceso { background-color: #e3f2fd; color: #1565c0; }
         .cerrado { background-color: #eeeeee; color: #616161; }
+        .urgente { background-color: #ffebee; color: #d32f2f; border: 1px solid #d32f2f; }
         .btn-atender { background-color: #198754; color: white; font-weight: bold; transition: 0.3s; }
         .btn-atender:hover { background-color: #146c43; color: white; transform: translateY(-1px); }
     </style>
@@ -113,9 +114,22 @@ try {
                                         <span class="text-danger fw-bold small italic">No asignado aún</span>
                                     <?php endif; ?>
                                 </td>
+                                <?php
+                                    $estatusRaw = strtoupper(trim($t['estatus'] ?? ''));
+                                    $fechaCreacion = new DateTime($t['fechainicial']);
+                                    $ahora = new DateTime();
+                                    $dif = $ahora->diff($fechaCreacion);
+                                    $horasPasadas = ($dif->days * 24) + $dif->h;
+                                    $statusClass = strtolower(str_replace(' ', '', $t['estatus']));
+                                    $statusText = htmlspecialchars($t['estatus']);
+                                    if ($estatusRaw === 'ABIERTO' && $horasPasadas >= 1) {
+                                        $statusClass = 'urgente';
+                                        $statusText = 'URGENTE (' . $horasPasadas . 'H)';
+                                    }
+                                ?>
                                 <td>
-                                    <span class="status <?php echo strtolower(str_replace(' ', '', $t['estatus'])); ?>">
-                                        <?php echo htmlspecialchars($t['estatus']); ?>
+                                    <span class="status <?php echo $statusClass; ?>">
+                                        <?php echo $statusText; ?>
                                     </span>
                                 </td>
                                 <td>

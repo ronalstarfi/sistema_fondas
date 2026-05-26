@@ -32,19 +32,6 @@ if (isset($_SESSION['user_id'])) {
     }
 }
 
-// 3. Lógica para buscar el solicitante cuando no es especialista
-if (!$esEspecialista && isset($_POST['buscar_cedula'])) {
-    $cedula_buscada = $_POST['ci_busqueda'];
-
-    if ($db) {
-        // Se usa 'ubicacion' para la gerencia
-        $query = "SELECT ci, nombre, ubicacion FROM solicitante WHERE ci = :ci LIMIT 1";
-        $stmt = $db->prepare($query);
-        $stmt->bindParam(':ci', $cedula_buscada);
-        $stmt->execute();
-        $solicitante = $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-}
 ?>
 
 <!DOCTYPE html>
@@ -128,22 +115,8 @@ if (!$esEspecialista && isset($_POST['buscar_cedula'])) {
                     </div>
 
                     <div class="p-4">
-                        <!-- Aquí empieza tu formulario de búsqueda de cédula -->
-                        <?php if (!$esEspecialista): ?>
-                        <form method="POST" class="row g-3 mb-4">
-                            <div class="col-md-8">
-                                <label class="form-label fw-bold">Cédula del Solicitante</label>
-                                <input type="number" name="ci_busqueda" class="form-control form-control-lg" placeholder="Ej: 14407683" value="<?php echo htmlspecialchars($cedula_buscada); ?>" required>
-                            </div>
-                            <div class="col-md-4 d-flex align-items-end">
-                                <button type="submit" name="buscar_cedula" class="btn btn-primary btn-lg w-100" style="background-color: #0d6efd;">Verificar</button>
-                            </div>
-                        </form>
-                        <?php endif; ?>
-
-                    <hr>
-
-                    <?php if ($solicitante): ?>
+                        <hr>
+                        <?php if ($solicitante): ?>
                         <div class="alert alert-success py-2">
                             ✓ <?php echo $esEspecialista ? 'Generando ticket como especialista:' : 'Trabajador verificado:'; ?> <?php echo htmlspecialchars($solicitante['nombre']); ?>.
                         </div>
@@ -222,10 +195,8 @@ if (!$esEspecialista && isset($_POST['buscar_cedula'])) {
 </div>
                         </form>
 
-                    <?php elseif (isset($_POST['buscar_cedula'])): ?>
-                        <div class="alert alert-danger">La cédula no existe en la base de datos de FONDAS.</div>
-                    <?php elseif ($esEspecialista && !isset($solicitante)): ?>
-                        <div class="alert alert-danger">No se encontró la información del especialista en sesión. Verifique su usuario y vuelva a iniciar sesión.</div>
+                    <?php else: ?>
+                        <div class="alert alert-danger">No se encontró información del solicitante. Inicie sesión nuevamente.</div>
                     <?php endif; ?>
 
                 </div>

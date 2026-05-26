@@ -73,7 +73,7 @@ $sql = "SELECT
             sol.ubicacion AS departamento_origen
         FROM solicitud s
         LEFT JOIN tipo t ON s.tsolicitud = t.id
-        LEFT JOIN marca m ON s.id = m.id 
+        LEFT JOIN marca m ON s.marca_id = m.id 
         LEFT JOIN especialista e ON s.especialista_id = e.id
         LEFT JOIN solicitante sol ON s.ci = sol.ci"; 
 
@@ -306,17 +306,18 @@ if ($rol_sesion !== 'Solicitante') {
         .btn-new::before { content: '+'; font-size: 1.2rem; line-height: 1; }
         .btn-back::before { content: '\2190'; margin-right: 8px; font-size: 1.05rem; display: inline-block; }
 
-        .new-ticket-alert { position: sticky; top: 0; z-index: 1000; margin-bottom: 15px; display: flex; justify-content: center; }
-        .new-ticket-alert-content { width: 100%; max-width: 1200px; background: linear-gradient(135deg, #fff3e0, #ffe0b2); border: 2px solid #ffb74d; border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 10px 30px rgba(0,0,0,0.08); font-size: 1.05rem; color: #5d4037; animation: pulseAlert 1.2s ease-in-out infinite alternate; gap: 12px; }
-        .new-ticket-alert-content .alert-left { display:flex; align-items:center; gap:12px; }
-        .bell-icon { width:44px; height:44px; flex:0 0 44px; display:flex; align-items:center; justify-content:center; border-radius:50%; background: radial-gradient(circle at 30% 30%, #fff9e6, #fff3e0); box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
-        .bell-icon svg { width:26px; height:26px; fill:#f57c00; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.12)); }
+        .new-ticket-alert { position: fixed; top: 16px; left: 16px; right: 16px; z-index: 1200; display: none; justify-content: center; pointer-events: none; }
+        .new-ticket-alert.show { display: flex; pointer-events: auto; }
+        .new-ticket-alert-content { width: 100%; max-width: 1150px; background: rgba(255, 255, 255, 0.98); border: 1px solid rgba(255, 183, 77, 0.9); border-radius: 16px; padding: 16px 22px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 18px 45px rgba(0,0,0,0.15); font-size: 1.03rem; color: #4e342e; animation: pulseAlert 1.2s ease-in-out infinite alternate; gap: 18px; }
+        .new-ticket-alert-content .alert-left { display:flex; align-items:center; gap:16px; flex: 1; }
+        .bell-icon { width:52px; height:52px; flex:0 0 52px; display:flex; align-items:center; justify-content:center; border-radius:50%; background: radial-gradient(circle at 30% 30%, #fff9e6, #ffe9c9); box-shadow: 0 10px 20px rgba(0,0,0,0.12); }
+        .bell-icon svg { width:30px; height:30px; fill:#f57c00; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.14)); }
         .bell-icon.ring svg { animation: ringBell 1s ease-in-out; }
         @keyframes ringBell { 0% { transform: rotate(0deg); } 25% { transform: rotate(-12deg); } 50% { transform: rotate(10deg); } 75% { transform: rotate(-6deg); } 100% { transform: rotate(0deg); } }
-        .notification-permission-alert { position: sticky; top: 0; z-index: 1000; margin-bottom: 15px; display: flex; justify-content: center; }
-        .notification-permission-content { width: 100%; max-width: 1200px; background: #e3f2fd; border: 2px solid #90caf9; border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 10px 20px rgba(0,0,0,0.08); font-size: 1rem; color: #0d47a1; }
-        .notification-permission-content span { display: inline-block; margin-right: 12px; }
-        .new-ticket-alert-content strong { font-size: 1.1rem; }
+        .new-ticket-alert-content strong { font-size: 1.15rem; }
+        .new-ticket-alert-content .alert-right { display: flex; align-items: center; justify-content: flex-end; }
+        .new-ticket-alert-content .alert-right .btn-aceptar { margin-top: 0; }
+        .notification-permission-alert, .notification-permission-content { display: none !important; }
         @keyframes pulseAlert { from { transform: translateY(0); } to { transform: translateY(-4px); } }
         
         .highlight-row { animation: highlightTicket 3s ease forwards; }
@@ -453,13 +454,6 @@ if ($rol_sesion !== 'Solicitante') {
                     </div>
                 </div>
             </div>
-            <div id="notificationPermissionAlert" class="notification-permission-alert" style="display:none;">
-                <div class="notification-permission-content">
-                    <span id="notificationMessage">Para recibir alertas instantáneas de nuevos tickets, habilite las notificaciones del navegador. Si ya rechazó, revise la configuración de notificaciones de su navegador y vuelva a esta página.</span>
-                    <button id="btnEnableNotifications" class="btn-aceptar">Activar notificaciones</button>
-                </div>
-            </div>
-
             <!-- Toolbar Unificada (Fechas + Buscador) -->
             <div class="table-toolbar">
                 <div class="date-filters">
@@ -468,6 +462,9 @@ if ($rol_sesion !== 'Solicitante') {
                     <button id="clear_dates" class="btn-clear">Limpiar Filtro</button>
                 </div>
                 <div id="custom-dt-search"></div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <button id="btnEnableNotifications" class="btn-aceptar" style="display:none;">Activar Notificaciones</button>
+                </div>
             </div>
             <div style="overflow-x: auto; width: 100%;">
             <table id="tablaTickets">
@@ -493,9 +490,14 @@ if ($rol_sesion !== 'Solicitante') {
                             $estatus_raw = strtoupper(trim($t['estatus'] ?? ''));
                             
                             $clase = 'abierto'; $texto = $t['estatus'];
-                            if ($estatus_raw === 'CERRADO') $clase = 'cerrado';
-                            elseif ($estatus_raw === 'EN PROCESO') $clase = 'proceso';
-                            elseif ($horas_pasadas >= 24 && $estatus_raw === 'ABIERTO') { $clase = 'urgente'; $texto = "URGENTE (" . $horas_pasadas . "H)"; }
+                            if ($estatus_raw === 'CERRADO') {
+                                $clase = 'cerrado';
+                            } elseif ($estatus_raw === 'EN PROCESO') {
+                                $clase = 'proceso';
+                            } elseif ($estatus_raw === 'ABIERTO' && $horas_pasadas >= 1) {
+                                $clase = 'urgente';
+                                $texto = "URGENTE (" . $horas_pasadas . "H)";
+                            }
                         ?>
                         <tr>
                             <td>
@@ -675,75 +677,53 @@ if ($rol_sesion !== 'Solicitante') {
                 }
             }
 
-            function requestNotificationPermission() {
-                if (!('Notification' in window)) return;
-                if (Notification.permission === 'default') {
-                    Notification.requestPermission().then(function(permission) {
-                        console.log('Permiso de notificaciones:', permission);
-                        updateNotificationBanner();
-                    });
-                } else {
-                    updateNotificationBanner();
+                function requestNotificationPermission() {
+                    if (!('Notification' in window)) return;
+                    if (Notification.permission === 'default') {
+                        Notification.requestPermission().then(function(permission) {
+                            console.log('Permiso de notificaciones:', permission);
+                        });
+                    }
                 }
-            }
 
-            function updateNotificationBanner() {
-                var banner = $('#notificationPermissionAlert');
-                var message = $('#notificationMessage');
-                var button = $('#btnEnableNotifications');
-                if (!('Notification' in window)) {
-                    banner.hide();
-                    return;
-                }
-                if (Notification.permission === 'denied') {
-                    message.text('Las notificaciones están bloqueadas. Abra la configuración de su navegador para permitirlas y luego vuelva a esta página.');
-                    button.text('Revisar configuración');
-                    banner.show();
-                } else {
-                    banner.hide();
-                }
-            }
-
-            function showBrowserNotification(diff) {
-                if (!('Notification' in window) || Notification.permission !== 'granted') return;
-                var title = diff === 1 ? 'Nuevo ticket en FONDAS' : diff + ' nuevos tickets en FONDAS';
-                var body = diff === 1 ? '1 ticket nuevo abierto. Haz clic para revisar.' : 'Hay ' + diff + ' tickets nuevos. Haz clic para revisar.';
-                var options = {
-                    body: body,
-                    icon: 'img/logo3.png',
-                    tag: 'fondas-new-ticket',
-                    renotify: true,
-                    requireInteraction: true
-                };
-                try {
-                    var notification = new Notification(title, options);
-                    notification.onclick = function () {
-                        window.focus();
-                        // Si estamos en otra pestaña, abrir la página de tickets
-                        try { window.location.href = 'ver_tickets.php'; } catch (e) { console.warn(e); }
-                        this.close();
+                function showBrowserNotification(diff) {
+                    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+                    var title = diff === 1 ? 'Nuevo ticket en FONDAS' : diff + ' nuevos tickets en FONDAS';
+                    var body = diff === 1 ? '1 ticket nuevo abierto. Haz clic para revisar.' : 'Hay ' + diff + ' tickets nuevos. Haz clic para revisar.';
+                    var options = {
+                        body: body,
+                        icon: 'img/logo3.png',
+                        tag: 'fondas-new-ticket',
+                        renotify: true,
+                        requireInteraction: false
                     };
-                } catch (e) {
-                    console.warn('Notification show failed', e);
+                    try {
+                        var notification = new Notification(title, options);
+                        notification.onclick = function () {
+                            window.focus();
+                            try { window.location.href = 'ver_tickets.php'; } catch (e) { console.warn(e); }
+                            this.close();
+                        };
+                    } catch (e) {
+                        console.warn('Notification show failed', e);
+                    }
+                    if (navigator.vibrate) {
+                        navigator.vibrate([200, 100, 200]);
+                    }
                 }
-                // Feedback háptico si está disponible
-                if (navigator.vibrate) {
-                    navigator.vibrate([200, 100, 200]);
-                }
-            }
 
-            function showNewTicketAlert(diff) {
-                var alertBox = $('#newTicketAlert');
-                var title = diff === 1 ? '¡Nuevo ticket disponible!' : '¡' + diff + ' nuevos tickets!';
-                $('#newTicketTitle').text(title);
-                $('#newTicketCountText').text(diff === 1 ? 'Hay 1 nuevo ticket abierto.' : 'Hay ' + diff + ' nuevos tickets abiertos.');
-                alertBox.show();
-                playBeep();
-                showBrowserNotification(diff);
-                // Mantener visible más tiempo si hay varios tickets
-                var timeout = (diff >= 5) ? 20000 : 12000;
-                setTimeout(function(){ alertBox.hide(); }, timeout);
-            }
+                function showNewTicketAlert(diff) {
+                    var alertBox = $('#newTicketAlert');
+                    var title = diff === 1 ? '¡Nuevo ticket disponible!' : '¡' + diff + ' nuevos tickets!';
+                    $('#newTicketTitle').text(title);
+                    $('#newTicketCountText').text(diff === 1 ? 'Hay 1 nuevo ticket abierto.' : 'Hay ' + diff + ' nuevos tickets abiertos.');
+                    alertBox.addClass('show');
+                    playBeep();
+                    showBrowserNotification(diff);
+                    // Mantener visible más tiempo si hay varios tickets
+                    var timeout = (diff >= 5) ? 20000 : 12000;
+                    setTimeout(function(){ alertBox.removeClass('show'); }, timeout);
+                }
 
             function highlightNewRows() {
                 $('#tablaTickets tbody tr').each(function() {
@@ -759,14 +739,27 @@ if ($rol_sesion !== 'Solicitante') {
                 highlightNewRows();
             });
 
-            $('#btnEnableNotifications').on('click', function() {
-                requestNotificationPermission();
-            });
-
             if ('Notification' in window) {
                 requestNotificationPermission();
-                updateNotificationBanner();
             }
+
+            // Mostrar/ocultar botón de activar notificaciones y enlazar acción
+            var $btnNotify = $('#btnEnableNotifications');
+            if (typeof Notification === 'undefined') {
+                $btnNotify.hide();
+            } else {
+                if (Notification.permission === 'granted') {
+                    $btnNotify.hide();
+                } else {
+                    $btnNotify.show();
+                }
+            }
+
+            $btnNotify.on('click', function(e){
+                e.preventDefault();
+                requestNotificationPermission();
+                setTimeout(function(){ if (Notification.permission === 'granted') $btnNotify.hide(); }, 800);
+            });
 
             var lastOpenCount = <?php echo $openCount; ?>;
             function checkForNewTickets() {

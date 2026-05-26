@@ -18,50 +18,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $db->beginTransaction();
 
-        // 1. Asignación automática: elegir el técnico activo con menor carga en el área correspondiente.
+        // 1. Asignación automática: elegir el técnico activo con menos tickets en el área correspondiente.
         // No se asignan tickets automáticamente a Gerente, Coordinadora ni Analista.
-        $allowedAreas = [
-            'Soporte' => 'Soporte',
+        $areaMap = [
+            'Soporte' => 'Soporte Técnico',
+            'Soporte Técnico' => 'Soporte Técnico',
             'Infraestructura' => 'Infraestructura',
             'Desarrollo' => 'Desarrollo',
             'Impresoras y Toner' => 'Impresoras y Toner',
-            'SIGA' => 'SIGA'
+            'SIGA' => 'Analista Funcional'
         ];
 
-        if (!isset($allowedAreas[$area])) {
+        if (!isset($areaMap[$area])) {
             throw new Exception('Área de problema no válida para la asignación automática.');
         }
 
-        if ($area === 'SIGA') {
-            $query_tec = "SELECT id FROM especialista WHERE especialista = 'Benjamin Acevedo' AND disponibilidad = 'Activo' LIMIT 1";
-            $stmt_tec = $db->prepare($query_tec);
-        } else {
-            $query_tec = "SELECT id FROM especialista WHERE area_especifica = :area AND rol = 'Tecnico' AND disponibilidad = 'Activo' ORDER BY tickets_activos ASC, id ASC LIMIT 1";
-            $stmt_tec = $db->prepare($query_tec);
-            $stmt_tec->bindParam(':area', $area);
-        }
+        $areaEspecialidad = $areaMap[$area];
+
+        // Buscar técnico activo con menor carga en el área de especialidad definida
+        $query_tec = "SELECT id FROM especialista WHERE area_especifica = :area AND rol = 'Tecnico' AND disponibilidad = 'Activo' ORDER BY tickets_activos ASC, id ASC LIMIT 1";
+        $stmt_tec = $db->prepare($query_tec);
+        $stmt_tec->bindParam(':area', $areaEspecialidad);
         $stmt_tec->execute();
         $tecnico = $stmt_tec->fetch(PDO::FETCH_ASSOC);
         $tecnico_id = $tecnico ? $tecnico['id'] : null;
-        // 1. Si el ticket lo genera un especialista, se asigna a sí mismo; en caso contrario, buscamos el técnico con menos carga en el área seleccionada
+
+        // Si el ticket lo genera un especialista, puede ser asignado a sí mismo si pertenece a esa área y está activo
         if ($esEspecialista && isset($_SESSION['user_id'])) {
-            $tecnico_id = $_SESSION['user_id'];
-        } else {
-            $query_tec = "SELECT id FROM especialista WHERE area_especifica = :area ORDER BY id ASC LIMIT 1";
-            $stmt_tec = $db->prepare($query_tec);
-            $stmt_tec->bindParam(':area', $area);
-            $stmt_tec->execute();
-            $tecnico = $stmt_tec->fetch(PDO::FETCH_ASSOC);
-            $tecnico_id = $tecnico ? $tecnico['id'] : null;
+            $stmt_user_area = $db->prepare("SELECT area_especifica, disponibilidad FROM especialista WHERE id = :id LIMIT 1");
+            $stmt_user_area->bindParam(':id', $_SESSION['user_id']);
+            $stmt_user_area->execute();
+            $userInfo = $stmt_user_area->fetch(PDO::FETCH_ASSOC);
+            if ($userInfo && $userInfo['area_especifica'] === $areaEspecialidad && $userInfo['disponibilidad'] === 'Activo') {
+                $tecnico_id = $_SESSION['user_id'];
+            }
         }
 
         // 2. Insertamos la solicitud
-        $sql = "INSERT INTO solicitud (ci, tsolicitud, descripcion, estatus, fechainicial, especialista_id) 
-                VALUES (:ci, :tipo, :desc, 'ABIERTO', :fecha, :tec_id)";
+        $sql = "INSERT INTO solicitud (ci, area_problema, tsolicitud, marca_id, descripcion, estatus, fechainicial, especialista_id) 
+                VALUES (:ci, :area, :tipo, :marca_id, :desc, 'ABIERTO', :fecha, :tec_id)";
         
         $stmt = $db->prepare($sql);
         $stmt->bindParam(':ci', $ci);
+        $stmt->bindParam(':area', $area);
         $stmt->bindParam(':tipo', $id_tipo);
+        $stmt->bindParam(':marca_id', $id_marca_seleccionada);
         $stmt->bindParam(':desc', $descripcion);
         $stmt->bindParam(':fecha', $fecha);
         $stmt->bindParam(':tec_id', $tecnico_id);
@@ -73,23 +74,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt_inc->execute();
         }
 
-        // 3. Obtenemos el ID del ticket recién creado[cite: 2]
+        // 3. Obtenemos el ID del ticket recién creado
         $id_ticket_nuevo = $db->lastInsertId();
-
-        // 4. Buscamos el nombre de la marca[cite: 2]
-        $query_m = "SELECT marca FROM marca WHERE id = :id_m LIMIT 1";
-        $stmt_m = $db->prepare($query_m);
-        $stmt_m->bindParam(':id_m', $id_marca_seleccionada);
-        $stmt_m->execute();
-        $marca_info = $stmt_m->fetch(PDO::FETCH_ASSOC);
-        $nombre_marca = $marca_info['marca'] ?? 'Generica';
-
-        // 5. Insertamos la relación en la tabla marca[cite: 2]
-        $sql_vincular = "INSERT INTO marca (id, marca) VALUES (:id_t, :nombre_m)";
-        $stmt_v = $db->prepare($sql_vincular);
-        $stmt_v->bindParam(':id_t', $id_ticket_nuevo);
-        $stmt_v->bindParam(':nombre_m', $nombre_marca);
-        $stmt_v->execute();
 
         $db->commit();
 

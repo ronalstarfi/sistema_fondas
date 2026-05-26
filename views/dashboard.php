@@ -13,7 +13,7 @@ $database = new Database();
 $db = $database->getConnection(); 
 
 // 3. CAPTURA DE FILTROS AVANZADOS
-$fecha_desde = isset($_GET['desde']) && !empty($_GET['desde']) ? $_GET['desde'] : date('Y-01-01'); // Por defecto, inicio de mes
+$fecha_desde = isset($_GET['desde']) && !empty($_GET['desde']) ? $_GET['desde'] : date('Y-m-01'); // Por defecto, inicio de mes
 $fecha_hasta = isset($_GET['hasta']) && !empty($_GET['hasta']) ? $_GET['hasta'] : date('Y-m-t'); // Por defecto, fin de mes
 $especialista_filtro = isset($_GET['especialista']) ? $_GET['especialista'] : '';
 $estatus_filtro = isset($_GET['estatus']) ? $_GET['estatus'] : ''; 
@@ -81,16 +81,35 @@ if (!empty($estatus_filtro)) {
 
 $labels_dinamicos = [];
 $valores_dinamicos = [];
+$status_order = ['Abierto', 'En Proceso', 'Urgente', 'Cerrado'];
+$status_counts = array_fill_keys($status_order, 0);
 
-$sql_grafica = "SELECT DATE_FORMAT(s.fechainicial, '%d/%m/%Y') as periodo, COUNT(*) as cantidad 
-                FROM solicitud s WHERE $condicion_tiempo GROUP BY DATE_FORMAT(s.fechainicial, '%d/%m/%Y') ORDER BY MIN(s.fechainicial) ASC";
+$sql_grafica = "SELECT s.estatus, COUNT(*) as cantidad FROM solicitud s WHERE $condicion_tiempo GROUP BY s.estatus";
 
-// Ejecutar Flujo de Incidencias
+// Ejecutar Flujo de Incidencias por estatus
 $stmt_g = $db->prepare($sql_grafica);
 $stmt_g->execute($params_grafica);
 foreach($stmt_g->fetchAll(PDO::FETCH_ASSOC) as $row) {
-    $labels_dinamicos[] = $row['periodo'];
-    $valores_dinamicos[] = $row['cantidad'];
+    $estatus_raw = strtoupper(trim($row['estatus']));
+    if ($estatus_raw === 'ABIERTO') {
+        $estatus = 'Abierto';
+    } elseif ($estatus_raw === 'EN PROCESO') {
+        $estatus = 'En Proceso';
+    } elseif ($estatus_raw === 'URGENTE') {
+        $estatus = 'Urgente';
+    } elseif ($estatus_raw === 'CERRADO') {
+        $estatus = 'Cerrado';
+    } else {
+        $estatus = $row['estatus'];
+    }
+    if (array_key_exists($estatus, $status_counts)) {
+        $status_counts[$estatus] = (int) $row['cantidad'];
+    }
+}
+
+foreach ($status_counts as $label => $value) {
+    $labels_dinamicos[] = $label;
+    $valores_dinamicos[] = $value;
 }
 
 // Ejecutar Rendimiento Especialista (Con exactitud de filtros)
@@ -102,10 +121,16 @@ $stmt_esp = $db->prepare($sql_esp);
 $stmt_esp->execute($params_grafica);
 $res_esp = $stmt_esp->fetchAll(PDO::FETCH_ASSOC);
 
-$nombres_esp = []; $cant_esp = [];
-foreach($res_esp as $row) { 
-    $nombres_esp[] = $row['especialista']; 
-    $cant_esp[] = $row['total'];
+$nombres_esp = []; $cant_esp = []; $cant_esp_total = 0;
+foreach($res_esp as $row) {
+    $cant_esp_total += (int) $row['total'];
+}
+
+$porc_esp = [];
+foreach($res_esp as $row) {
+    $nombres_esp[] = $row['especialista'];
+    $cant_esp[] = (int) $row['total'];
+    $porc_esp[] = $cant_esp_total ? round((($row['total'] * 100) / $cant_esp_total), 1) : 0;
 }
 ?>
 
@@ -236,8 +261,8 @@ foreach($res_esp as $row) {
                 <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3 mb-3">
                     <h6 class="fw-bold text-dark mb-0"><i class="fas fa-chart-area me-2 text-success"></i>FLUJO DE INCIDENCIAS (Periodo Seleccionado)</h6>
                     <div class="chart-toolbar">
-                        <button type="button" class="btn btn-outline-secondary btn-sm chart-type-btn active" data-chart="line" title="Gráfico de línea"><i class="fas fa-chart-line"></i></button>
-                        <button type="button" class="btn btn-outline-secondary btn-sm chart-type-btn" data-chart="bar" title="Gráfico de columnas"><i class="fas fa-chart-column"></i></button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm chart-type-btn" data-chart="line" title="Gráfico de línea"><i class="fas fa-chart-line"></i></button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm chart-type-btn active" data-chart="bar" title="Gráfico de columnas"><i class="fas fa-chart-column"></i></button>
                         <button type="button" class="btn btn-outline-secondary btn-sm chart-type-btn" data-chart="pie" title="Gráfico de pastel"><i class="fas fa-chart-pie"></i></button>
                         <button type="button" id="btnDescargarPdf" class="btn btn-success btn-sm">Descargar Informe PDF</button>
                     </div>
@@ -338,6 +363,14 @@ $(document).ready(function() {
 
 const flujoLabels = <?php echo json_encode($labels_dinamicos); ?>;
 const flujoValues = <?php echo json_encode($valores_dinamicos); ?>;
+const especialistaCounts = <?php echo json_encode($cant_esp); ?>;
+const especialistaPercent = <?php echo json_encode($porc_esp); ?>;
+const flujoStatusColors = {
+    'Abierto': '#f59e0b',
+    'En Proceso': '#0dcaf0',
+    'Urgente': '#dc2626',
+    'Cerrado': '#198754'
+};
 
 async function descargarInformePDF() {
     try {
@@ -576,8 +609,8 @@ async function descargarInformePDF() {
     const periodoTexto = data.periodo_label || data.periodo || `${desde} - ${hasta}`;
     const especialistaTexto = data.especialista_label || 'Todos los especialistas';
     const estatusTexto = data.estatus_label || 'Todos los estatus';
-    const usuarioNombre = data.usuario_nombre || 'Especialista';
-    const usuarioTitulo = data.usuario_titulo || 'Especialista';
+    const usuarioNombre = (data.usuario_nombre || 'Especialista').toUpperCase();
+    const usuarioTitulo = (data.usuario_titulo || 'Especialista').toUpperCase();
 
     createCoverPage('INFORME DE GESTIÓN', 'OFICINA DE TECNOLOGÍA DE LA INFORMACIÓN Y COMUNICACIÓN (OTIC)', periodoTexto, usuarioNombre, usuarioTitulo);
 
@@ -760,6 +793,8 @@ function createFlujoConfig(type) {
         scales: { y: { beginAtZero: true, grid: { borderDash: [5, 5] } }, x: { grid: { display: false } } }
     };
 
+    const backgroundColors = flujoLabels.map(label => flujoStatusColors[label] || '#2f80ed');
+
     if (type === 'pie') {
         return {
             type: 'pie',
@@ -767,7 +802,7 @@ function createFlujoConfig(type) {
                 labels: flujoLabels,
                 datasets: [{
                     data: flujoValues,
-                    backgroundColor: getColorPalette(flujoValues.length),
+                    backgroundColor: backgroundColors,
                     borderColor: '#ffffff',
                     borderWidth: 2
                 }]
@@ -780,7 +815,6 @@ function createFlujoConfig(type) {
         };
     }
 
-    const backgroundColors = getColorPalette(flujoValues.length);
     return {
         type: type === 'line' ? 'line' : 'bar',
         data: {
@@ -789,8 +823,8 @@ function createFlujoConfig(type) {
                 label: 'Incidencias',
                 data: flujoValues,
                 borderColor: type === 'line' ? '#1d5733' : backgroundColors,
-                backgroundColor: type === 'line' ? 'rgba(255,255,255,0)' : backgroundColors,
-                fill: false,
+                backgroundColor: type === 'line' ? 'rgba(29,87,51,0.2)' : backgroundColors,
+                fill: type === 'line',
                 tension: type === 'line' ? 0.4 : 0,
                 pointBackgroundColor: '#1d5733',
                 pointRadius: type === 'line' ? 6 : 0,
@@ -803,7 +837,7 @@ function createFlujoConfig(type) {
     };
 }
 
-let chartFlujo = new Chart(document.getElementById('chartFlujo'), createFlujoConfig('line'));
+let chartFlujo = new Chart(document.getElementById('chartFlujo'), createFlujoConfig('bar'));
 
 document.querySelectorAll('.chart-type-btn').forEach(button => {
     button.addEventListener('click', () => {
@@ -820,19 +854,34 @@ new Chart(document.getElementById('chartEsp'), {
     data: {
         labels: <?php echo json_encode($nombres_esp); ?>,
         datasets: [{ 
-            label: 'Resueltos', 
-            data: <?php echo json_encode($cant_esp); ?>, 
+            label: 'Porcentaje de tickets', 
+            data: <?php echo json_encode($porc_esp); ?>, 
             backgroundColor: '#2980b9',
             hoverBackgroundColor: '#1d5733',
-            borderRadius: 8
+            borderRadius: 8,
+            borderSkipped: false
         }]
     },
     options: { 
         responsive: true, 
         maintainAspectRatio: false,
         indexAxis: 'y', 
-        plugins: { legend: { display: false } },
-        scales: { x: { beginAtZero: true }, y: { grid: { display: false } } }
+        plugins: { 
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        const index = context.dataIndex;
+                        const count = especialistaCounts[index] || 0;
+                        return `${context.dataset.label}: ${context.parsed.x}% (${count} tickets)`;
+                    }
+                }
+            }
+        },
+        scales: { 
+            x: { beginAtZero: true, ticks: { callback: value => `${value}%` } }, 
+            y: { grid: { display: false } } 
+        }
     }
 });
 </script>

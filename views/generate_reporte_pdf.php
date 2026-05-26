@@ -302,13 +302,15 @@ if (count($duplicados) > 0) {
 
 $user_name = $_SESSION['nombre'] ?? 'Especialista';
 $user_rol = $_SESSION['rol'] ?? '';
-$usuario_titulo = $user_rol;
-if (stripos($user_rol, 'coordin') !== false) {
-    $usuario_titulo = 'Coordinadora';
-} elseif (stripos($user_rol, 'gerente') !== false) {
-    $usuario_titulo = 'Gerente';
+
+if (stripos($user_rol, 'coordin') !== false || stripos($user_rol, 'gerente') !== false || stripos($user_rol, 'jefe') !== false) {
+    $user_name = 'ING. LUIS A. RAMIREZ';
+    $usuario_titulo = 'GERENTE OFICINA DE TECNOLOGÍA DE LA INFORMACIÓN Y LA COMUNICACIÓN';
+} else {
+    $usuario_titulo = $user_rol;
 }
 
+$user_name = mb_strtoupper(trim($user_name), 'UTF-8');
 $total_tickets = (int) ($resumen['total'] ?? 0);
 $estadisticas = [
     'total' => $total_tickets,
