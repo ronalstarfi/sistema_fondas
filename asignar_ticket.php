@@ -1,8 +1,12 @@
 <?php
+session_start();
 // 1. Conexión a la base de datos
 require_once __DIR__ . '/config/database.php';
 $database = new Database();
 $db = $database->getConnection();
+
+$rol_sesion = $_SESSION['rol'] ?? '';
+$nombre_usuario = $_SESSION['nombre'] ?? 'Usuario';
 
 // Verificar que venga un ID válido
 if(!isset($_GET['id'])) { header("Location: index.php"); exit(); }
@@ -69,6 +73,24 @@ if ($_POST) {
         $stmt_up->bindParam(':id', $id_ticket);
 
         if ($stmt_up->execute()) {
+            try {
+                $stmt_aud = $db->prepare("INSERT INTO auditoria_solicitudes 
+                    (id_solicitud, estatus_anterior, estatus_nuevo, usuario_que_cambio, cedula_usuario, rol_usuario, direccion_ip, user_agent)
+                    VALUES (:id_solicitud, :estatus_anterior, :estatus_nuevo, :usuario_que_cambio, :cedula_usuario, :rol_usuario, :direccion_ip, :user_agent)");
+                $stmt_aud->execute([
+                    ':id_solicitud' => $id_ticket,
+                    ':estatus_anterior' => $ticket['estatus'] ?? 'ABIERTO',
+                    ':estatus_nuevo' => $nuevo_estado,
+                    ':usuario_que_cambio' => $nombre_usuario,
+                    ':cedula_usuario' => $_SESSION['user_id'] ?? null,
+                    ':rol_usuario' => $rol_sesion,
+                    ':direccion_ip' => $_SERVER['REMOTE_ADDR'] ?? null,
+                    ':user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? null,
+                ]);
+            } catch (Exception $e) {
+                // Ignorar fallo de logging para no romper la asignación
+            }
+
             if ($id_tecnico_elegido && $id_tecnico_elegido !== $antiguo_tecnico_id) {
                 if ($antiguo_tecnico_id) {
                     $stmt_dec = $db->prepare("UPDATE especialista SET tickets_activos = GREATEST(0, tickets_activos - 1) WHERE id = :id");

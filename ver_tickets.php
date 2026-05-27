@@ -25,18 +25,43 @@ if (isset($_POST['aceptar_id']) && ($rol_sesion === 'Tecnico' || $rol_sesion ===
 
     if ($especialista) {
         $esp_id = $especialista['id'];
+
+        $stmt_old = $db->prepare("SELECT estatus FROM solicitud WHERE id = :id");
+        $stmt_old->execute([':id' => $id_ticket]);
+        $anterior_estatus = $stmt_old->fetchColumn() ?: 'ABIERTO';
+
         $update = "UPDATE solicitud SET estatus = 'EN PROCESO', especialista_id = :esp_id WHERE id = :id";
         $stmt_up = $db->prepare($update);
         $stmt_up->bindParam(':esp_id', $esp_id);
         $stmt_up->bindParam(':id', $id_ticket);
-        $stmt_up->execute();
 
-        $stmt_inc = $db->prepare("UPDATE especialista SET tickets_activos = tickets_activos + 1 WHERE id = :id");
-        $stmt_inc->bindParam(':id', $esp_id);
-        $stmt_inc->execute();
+        if ($stmt_up->execute()) {
+            try {
+                $aud_sql = "INSERT INTO auditoria_solicitudes 
+                    (id_solicitud, estatus_anterior, estatus_nuevo, usuario_que_cambio, cedula_usuario, rol_usuario, direccion_ip, user_agent)
+                    VALUES (:id_solicitud, :estatus_anterior, :estatus_nuevo, :usuario_que_cambio, :cedula_usuario, :rol_usuario, :direccion_ip, :user_agent)";
+                $stmt_aud = $db->prepare($aud_sql);
+                $stmt_aud->execute([
+                    ':id_solicitud' => $id_ticket,
+                    ':estatus_anterior' => $anterior_estatus,
+                    ':estatus_nuevo' => 'EN PROCESO',
+                    ':usuario_que_cambio' => $_SESSION['nombre'] ?? 'Desconocido',
+                    ':cedula_usuario' => $_SESSION['user_id'] ?? null,
+                    ':rol_usuario' => $_SESSION['rol'] ?? null,
+                    ':direccion_ip' => $_SERVER['REMOTE_ADDR'] ?? null,
+                    ':user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? null,
+                ]);
+            } catch (Exception $e) {
+                // Ignorar fallo de logging para no romper la asignación
+            }
 
-        header("Location: ver_tickets.php");
-        exit();
+            $stmt_inc = $db->prepare("UPDATE especialista SET tickets_activos = tickets_activos + 1 WHERE id = :id");
+            $stmt_inc->bindParam(':id', $esp_id);
+            $stmt_inc->execute();
+
+            header("Location: ver_tickets.php");
+            exit();
+        }
     }
 }
 
@@ -438,7 +463,8 @@ if ($rol_sesion !== 'Solicitante') {
         </nav>
 
         <div class="container">
-            <div id="newTicketAlert" class="new-ticket-alert" style="display:none;">
+            <?php if ($rol_sesion !== 'Solicitante'): ?>
+            <div id="newTicketAlert" class="new-ticket-alert">
                 <div class="new-ticket-alert-content">
                     <div class="alert-left">
                         <div class="bell-icon" id="bellIcon" aria-hidden="true">
@@ -454,6 +480,7 @@ if ($rol_sesion !== 'Solicitante') {
                     </div>
                 </div>
             </div>
+        <?php endif; ?>
             <!-- Toolbar Unificada (Fechas + Buscador) -->
             <div class="table-toolbar">
                 <div class="date-filters">
@@ -463,7 +490,9 @@ if ($rol_sesion !== 'Solicitante') {
                 </div>
                 <div id="custom-dt-search"></div>
                 <div style="display:flex; align-items:center; gap:10px;">
-                    <button id="btnEnableNotifications" class="btn-aceptar" style="display:none;">Activar Notificaciones</button>
+                    <?php if ($rol_sesion !== 'Solicitante'): ?>
+                        <button id="btnEnableNotifications" class="btn-aceptar" style="display:none;">Activar Notificaciones</button>
+                    <?php endif; ?>
                 </div>
             </div>
             <div style="overflow-x: auto; width: 100%;">
@@ -595,6 +624,7 @@ if ($rol_sesion !== 'Solicitante') {
                 "lengthChange": false,
                 "ordering": false
             });
+            var canNotify = <?php echo ($rol_sesion !== 'Solicitante') ? 'true' : 'false'; ?>;
 
             // Recreamos los controles manualmente si usamos "dom" sin l y f, o podemos usar el dom standard y moverlos.
             // La forma más limpia es usar la API:
@@ -715,14 +745,21 @@ if ($rol_sesion !== 'Solicitante') {
                 function showNewTicketAlert(diff) {
                     var alertBox = $('#newTicketAlert');
                     var title = diff === 1 ? '¡Nuevo ticket disponible!' : '¡' + diff + ' nuevos tickets!';
+                    var canShowDesktop = canNotify && ('Notification' in window) && Notification.permission === 'granted';
+
                     $('#newTicketTitle').text(title);
                     $('#newTicketCountText').text(diff === 1 ? 'Hay 1 nuevo ticket abierto.' : 'Hay ' + diff + ' nuevos tickets abiertos.');
-                    alertBox.addClass('show');
                     playBeep();
-                    showBrowserNotification(diff);
-                    // Mantener visible más tiempo si hay varios tickets
-                    var timeout = (diff >= 5) ? 20000 : 12000;
-                    setTimeout(function(){ alertBox.removeClass('show'); }, timeout);
+
+                    if (canShowDesktop) {
+                        showBrowserNotification(diff);
+                        alertBox.removeClass('show');
+                    } else {
+                        alertBox.addClass('show');
+                        // Mantener visible más tiempo si hay varios tickets
+                        var timeout = (diff >= 5) ? 20000 : 12000;
+                        setTimeout(function(){ alertBox.removeClass('show'); }, timeout);
+                    }
                 }
 
             function highlightNewRows() {
@@ -739,48 +776,57 @@ if ($rol_sesion !== 'Solicitante') {
                 highlightNewRows();
             });
 
-            if ('Notification' in window) {
-                requestNotificationPermission();
+            var lastOpenCount = <?php echo $openCount; ?>;
+            if (!canNotify) {
+                $('#newTicketAlert').hide();
+                $('#btnEnableNotifications').hide();
             }
 
-            // Mostrar/ocultar botón de activar notificaciones y enlazar acción
-            var $btnNotify = $('#btnEnableNotifications');
-            if (typeof Notification === 'undefined') {
-                $btnNotify.hide();
-            } else {
-                if (Notification.permission === 'granted') {
+            if (canNotify) {
+                if ('Notification' in window) {
+                    requestNotificationPermission();
+                }
+
+                // Mostrar/ocultar botón de activar notificaciones y enlazar acción
+                var $btnNotify = $('#btnEnableNotifications');
+                if (typeof Notification === 'undefined') {
                     $btnNotify.hide();
                 } else {
-                    $btnNotify.show();
-                }
-            }
-
-            $btnNotify.on('click', function(e){
-                e.preventDefault();
-                requestNotificationPermission();
-                setTimeout(function(){ if (Notification.permission === 'granted') $btnNotify.hide(); }, 800);
-            });
-
-            var lastOpenCount = <?php echo $openCount; ?>;
-            function checkForNewTickets() {
-                fetch('ajax/check_new_tickets.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-                }).then(function(resp){ return resp.json(); })
-                .then(function(data){
-                    if (data && typeof data.open === 'number') {
-                        var currentOpen = data.open;
-                        if (currentOpen > lastOpenCount) {
-                            showNewTicketAlert(currentOpen - lastOpenCount);
-                            lastOpenCount = currentOpen;
-                        } else {
-                            lastOpenCount = currentOpen;
-                        }
+                    if (Notification.permission === 'granted') {
+                        $btnNotify.hide();
+                    } else {
+                        $btnNotify.show();
                     }
-                }).catch(function(){ /* Ignorar errores temporales */ });
-            }
+                }
 
-            setInterval(checkForNewTickets, 12000);
+                $btnNotify.on('click', function(e){
+                    e.preventDefault();
+                    requestNotificationPermission();
+                    setTimeout(function(){ if (Notification.permission === 'granted') $btnNotify.hide(); }, 800);
+                });
+
+                function checkForNewTickets() {
+                    fetch('ajax/check_new_tickets.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                    }).then(function(resp){ return resp.json(); })
+                    .then(function(data){
+                        if (data && typeof data.open === 'number') {
+                            var currentOpen = data.open;
+                            if (currentOpen > lastOpenCount) {
+                                showNewTicketAlert(currentOpen - lastOpenCount);
+                                lastOpenCount = currentOpen;
+                            } else {
+                                lastOpenCount = currentOpen;
+                            }
+                        }
+                    }).catch(function(){ /* Ignorar errores temporales */ });
+                }
+
+                // Comprobar inmediatamente y luego cada 3 segundos para notificar lo antes posible
+                checkForNewTickets();
+                setInterval(checkForNewTickets, 3000);
+            }
         });
     </script>
         <audio id="notifAudio" preload="auto">
