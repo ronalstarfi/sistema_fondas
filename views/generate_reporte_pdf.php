@@ -304,7 +304,7 @@ $user_name = $_SESSION['nombre'] ?? 'Especialista';
 $user_rol = $_SESSION['rol'] ?? '';
 
 if (stripos($user_rol, 'coordin') !== false || stripos($user_rol, 'gerente') !== false || stripos($user_rol, 'jefe') !== false) {
-    $user_name = 'ING. LUIS A. RAMIREZ';
+    $user_name = 'ING. LUIS A. RAMÍREZ';
     $usuario_titulo = 'GERENTE OFICINA DE TECNOLOGÍA DE LA INFORMACIÓN Y LA COMUNICACIÓN';
 } else {
     $usuario_titulo = $user_rol;

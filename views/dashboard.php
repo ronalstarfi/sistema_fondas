@@ -35,14 +35,18 @@ function obtenerDataDetalle($db, $desde, $hasta, $esp, $est, $extra = "") {
         $sql .= " AND s.especialista_id = :esp ";
     }
     if (!empty($est)) {
-        $sql .= " AND s.estatus = :est ";
+        if ($est === 'URGENTE') {
+            $sql .= " AND s.estatus = 'ABIERTO' AND s.fechainicial <= DATE_SUB(NOW(), INTERVAL 1 HOUR) ";
+        } else {
+            $sql .= " AND s.estatus = :est ";
+        }
     }
     
     $sql .= " $extra ORDER BY s.fechainicial DESC";
     $stmt = $db->prepare($sql);
     $params = ['desde' => $desde, 'hasta' => $hasta];
     if (!empty($esp)) { $params['esp'] = $esp; }
-    if (!empty($est)) { $params['est'] = $est; }
+    if (!empty($est) && $est !== 'URGENTE') { $params['est'] = $est; }
     $stmt->execute($params);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
@@ -63,8 +67,12 @@ if (!empty($especialista_filtro)) {
     $params_grafica['esp'] = $especialista_filtro;
 }
 if (!empty($estatus_filtro)) {
-    $sql_ind .= " AND estatus = :est";
-    $params_grafica['est'] = $estatus_filtro;
+    if ($estatus_filtro === 'URGENTE') {
+        $sql_ind .= " AND estatus = 'ABIERTO' AND fechainicial <= DATE_SUB(NOW(), INTERVAL 1 HOUR)";
+    } else {
+        $sql_ind .= " AND estatus = :est";
+        $params_grafica['est'] = $estatus_filtro;
+    }
 }
 $stmt_ind = $db->prepare($sql_ind);
 $stmt_ind->execute($params_grafica);
@@ -76,7 +84,12 @@ if (!empty($especialista_filtro)) {
     $condicion_tiempo .= " AND s.especialista_id = :esp";
 }
 if (!empty($estatus_filtro)) {
-    $condicion_tiempo .= " AND s.estatus = :est";
+    if ($estatus_filtro === 'URGENTE') {
+        $condicion_tiempo .= " AND s.estatus = 'ABIERTO' AND s.fechainicial <= DATE_SUB(NOW(), INTERVAL 1 HOUR)";
+    } else {
+        $condicion_tiempo .= " AND s.estatus = :est";
+        $params_grafica['est'] = $estatus_filtro;
+    }
 }
 
 $labels_dinamicos = [];
@@ -84,28 +97,21 @@ $valores_dinamicos = [];
 $status_order = ['Asignado', 'En Proceso', 'Urgente', 'Cerrado'];
 $status_counts = array_fill_keys($status_order, 0);
 
-$sql_grafica = "SELECT s.estatus, COUNT(*) as cantidad FROM solicitud s WHERE $condicion_tiempo GROUP BY s.estatus";
+$sql_grafica = "SELECT 
+                    SUM(CASE WHEN s.estatus = 'ABIERTO' AND s.fechainicial <= DATE_SUB(NOW(), INTERVAL 1 HOUR) THEN 1 ELSE 0 END) AS urgente,
+                    SUM(CASE WHEN s.estatus = 'ABIERTO' AND s.fechainicial > DATE_SUB(NOW(), INTERVAL 1 HOUR) THEN 1 ELSE 0 END) AS asignado,
+                    SUM(CASE WHEN s.estatus = 'EN PROCESO' THEN 1 ELSE 0 END) AS en_proceso,
+                    SUM(CASE WHEN s.estatus = 'CERRADO' THEN 1 ELSE 0 END) AS cerrado
+                FROM solicitud s WHERE $condicion_tiempo";
 
 // Ejecutar Flujo de Incidencias por estatus
 $stmt_g = $db->prepare($sql_grafica);
 $stmt_g->execute($params_grafica);
-foreach($stmt_g->fetchAll(PDO::FETCH_ASSOC) as $row) {
-    $estatus_raw = strtoupper(trim($row['estatus']));
-    if ($estatus_raw === 'ABIERTO') {
-        $estatus = 'Asignado';
-    } elseif ($estatus_raw === 'EN PROCESO') {
-        $estatus = 'En Proceso';
-    } elseif ($estatus_raw === 'URGENTE') {
-        $estatus = 'Urgente';
-    } elseif ($estatus_raw === 'CERRADO') {
-        $estatus = 'Cerrado';
-    } else {
-        $estatus = $row['estatus'];
-    }
-    if (array_key_exists($estatus, $status_counts)) {
-        $status_counts[$estatus] = (int) $row['cantidad'];
-    }
-}
+$row = $stmt_g->fetch(PDO::FETCH_ASSOC);
+$status_counts['Urgente'] = (int) ($row['urgente'] ?? 0);
+$status_counts['Asignado'] = (int) ($row['asignado'] ?? 0);
+$status_counts['En Proceso'] = (int) ($row['en_proceso'] ?? 0);
+$status_counts['Cerrado'] = (int) ($row['cerrado'] ?? 0);
 
 foreach ($status_counts as $label => $value) {
     $labels_dinamicos[] = $label;
@@ -217,6 +223,7 @@ foreach($res_esp as $row) {
                     <option value="">Todos los estatus</option>
                     <option value="ABIERTO" <?php echo ($estatus_filtro == 'ABIERTO') ? 'selected' : ''; ?>>Asignado</option>
                     <option value="En Proceso" <?php echo ($estatus_filtro == 'En Proceso') ? 'selected' : ''; ?>>En Proceso</option>
+                    <option value="URGENTE" <?php echo ($estatus_filtro == 'URGENTE') ? 'selected' : ''; ?>>Urgente</option>
                     <option value="Cerrado" <?php echo ($estatus_filtro == 'Cerrado') ? 'selected' : ''; ?>>Cerrado</option>
                 </select>
             </div>

@@ -57,6 +57,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['confirmar_cierre'])) {
             ':id' => $id_ticket
         ]);
 
+<<<<<<< HEAD
+        try {
+            $stmt_aud = $db->prepare("INSERT INTO auditoria_solicitudes 
+                (id_solicitud, estatus_anterior, estatus_nuevo, usuario_que_cambio, cedula_usuario, rol_usuario, direccion_ip, user_agent)
+                VALUES (:id_solicitud, :estatus_anterior, :estatus_nuevo, :usuario_que_cambio, :cedula_usuario, :rol_usuario, :direccion_ip, :user_agent)");
+            $stmt_aud->execute([
+                ':id_solicitud' => $id_ticket,
+                ':estatus_anterior' => $ticket['estatus'] ?? 'EN PROCESO',
+                ':estatus_nuevo' => 'CERRADO',
+                ':usuario_que_cambio' => $_SESSION['nombre'] ?? 'Desconocido',
+                ':cedula_usuario' => $_SESSION['user_id'] ?? null,
+                ':rol_usuario' => $_SESSION['rol'] ?? null,
+                ':direccion_ip' => $_SERVER['REMOTE_ADDR'] ?? null,
+                ':user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? null,
+            ]);
+        } catch (Exception $e) {
+            // Ignorar fallo de logging para no romper el cierre
+        }
+=======
         // Registrar en la bitácora de auditoría
         $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
         $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? 'Desconocido';
@@ -77,6 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['confirmar_cierre'])) {
             ':ip' => $ip,
             ':ua' => $user_agent
         ]);
+>>>>>>> 1d64bec3c58be4212fdd35bbd4e9b8362782a629
 
         $db->commit();
         
