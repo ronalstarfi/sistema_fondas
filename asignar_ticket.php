@@ -73,23 +73,7 @@ if ($_POST) {
         $stmt_up->bindParam(':id', $id_ticket);
 
         if ($stmt_up->execute()) {
-            try {
-                $stmt_aud = $db->prepare("INSERT INTO auditoria_solicitudes 
-                    (id_solicitud, estatus_anterior, estatus_nuevo, usuario_que_cambio, cedula_usuario, rol_usuario, direccion_ip, user_agent)
-                    VALUES (:id_solicitud, :estatus_anterior, :estatus_nuevo, :usuario_que_cambio, :cedula_usuario, :rol_usuario, :direccion_ip, :user_agent)");
-                $stmt_aud->execute([
-                    ':id_solicitud' => $id_ticket,
-                    ':estatus_anterior' => $ticket['estatus'] ?? 'ABIERTO',
-                    ':estatus_nuevo' => $nuevo_estado,
-                    ':usuario_que_cambio' => $nombre_usuario,
-                    ':cedula_usuario' => $_SESSION['user_id'] ?? null,
-                    ':rol_usuario' => $rol_sesion,
-                    ':direccion_ip' => $_SERVER['REMOTE_ADDR'] ?? null,
-                    ':user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? null,
-                ]);
-            } catch (Exception $e) {
-                // Ignorar fallo de logging para no romper la asignación
-            }
+
 
             if ($id_tecnico_elegido && $id_tecnico_elegido !== $antiguo_tecnico_id) {
                 if ($antiguo_tecnico_id) {
@@ -102,30 +86,7 @@ if ($_POST) {
                 $stmt_inc->execute();
             }
 
-            // Registrar en la bitácora de auditoría
-            if (session_status() === PHP_SESSION_NONE) { session_start(); }
-            $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
-            $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? 'Desconocido';
-            $usuario = $_SESSION['nombre'] ?? 'Sistema/Coordinador';
-            $cedula = $_SESSION['user_id'] ?? '';
-            $rol_usuario = $_SESSION['rol'] ?? 'Asignador';
-            $estatus_anterior = $ticket['estatus'] ?? 'ABIERTO';
 
-            $sql_audit = "INSERT INTO auditoria_solicitudes 
-                         (id_solicitud, estatus_anterior, estatus_nuevo, usuario_que_cambio, cedula_usuario, rol_usuario, direccion_ip, user_agent) 
-                         VALUES 
-                         (:id_sol, :estatus_ant, :estatus_nue, :usuario, :cedula, :rol, :ip, :ua)";
-            $stmt_audit = $db->prepare($sql_audit);
-            $stmt_audit->execute([
-                ':id_sol' => $id_ticket,
-                ':estatus_ant' => $estatus_anterior,
-                ':estatus_nue' => $nuevo_estado,
-                ':usuario' => $usuario,
-                ':cedula' => $cedula,
-                ':rol' => $rol_usuario,
-                ':ip' => $ip,
-                ':ua' => $user_agent
-            ]);
 
             echo "<script>alert('Técnico asignado exitosamente'); window.location='index.php';</script>";
         } else {

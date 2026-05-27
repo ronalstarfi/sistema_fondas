@@ -36,20 +36,7 @@ if (isset($_POST['aceptar_id']) && ($rol_sesion === 'Tecnico' || $rol_sesion ===
         $stmt_up->bindParam(':id', $id_ticket);
 
         if ($stmt_up->execute()) {
-            try {
-                $aud_sql = "INSERT INTO auditoria_solicitudes 
-                    (id_solicitud, estatus_anterior, estatus_nuevo, usuario_que_cambio, cedula_usuario, rol_usuario, direccion_ip, user_agent)
-                    VALUES (:id_solicitud, :estatus_anterior, :estatus_nuevo, :usuario_que_cambio, :cedula_usuario, :rol_usuario, :direccion_ip, :user_agent)";
-                $stmt_aud = $db->prepare($aud_sql);
-                $stmt_aud->execute([
-                    ':id_solicitud' => $id_ticket,
-                    ':estatus_anterior' => $anterior_estatus,
-                    ':estatus_nuevo' => 'EN PROCESO',
-                    ':usuario_que_cambio' => $_SESSION['nombre'] ?? 'Desconocido',
-                    ':cedula_usuario' => $_SESSION['user_id'] ?? null,
-                    ':rol_usuario' => $_SESSION['rol'] ?? null,
-                    ':direccion_ip' => $_SERVER['REMOTE_ADDR'] ?? null,
-                    ':user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? null,
+
             $stmt_inc = $db->prepare("UPDATE especialista SET tickets_activos = tickets_activos + 1 WHERE id = :id");
             $stmt_inc->bindParam(':id', $esp_id);
             $stmt_inc->execute();
