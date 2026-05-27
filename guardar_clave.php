@@ -35,6 +35,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['temp_ci'])) {
 
     // Ejecutamos la actualización[cite: 2]
     if ($stmt->execute([':p' => $hash, ':id' => $id_usuario])) {
+        // Registrar en auditoría
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        $usuario_audit = $id_usuario; // Es la cédula, no tenemos el nombre en esta sesión a menos que lo consultemos
+        
+        $sql_audit = "INSERT INTO auditoria_general (tipo_movimiento, descripcion, usuario, direccion_ip) VALUES (?, ?, ?, ?)";
+        $stmt_audit = $db->prepare($sql_audit);
+        $stmt_audit->execute(['Cambio de Contraseña', 'El usuario actualizó/recuperó su contraseña exitosamente.', $usuario_audit, $ip]);
+
         // IMPORTANTE: Solo destruimos la sesión si la actualización fue real[cite: 2]
         session_destroy(); 
         echo "

@@ -101,6 +101,32 @@ if ($_POST) {
                 $stmt_inc->bindParam(':id', $id_tecnico_elegido);
                 $stmt_inc->execute();
             }
+
+            // Registrar en la bitácora de auditoría
+            if (session_status() === PHP_SESSION_NONE) { session_start(); }
+            $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+            $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? 'Desconocido';
+            $usuario = $_SESSION['nombre'] ?? 'Sistema/Coordinador';
+            $cedula = $_SESSION['user_id'] ?? '';
+            $rol_usuario = $_SESSION['rol'] ?? 'Asignador';
+            $estatus_anterior = $ticket['estatus'] ?? 'ABIERTO';
+
+            $sql_audit = "INSERT INTO auditoria_solicitudes 
+                         (id_solicitud, estatus_anterior, estatus_nuevo, usuario_que_cambio, cedula_usuario, rol_usuario, direccion_ip, user_agent) 
+                         VALUES 
+                         (:id_sol, :estatus_ant, :estatus_nue, :usuario, :cedula, :rol, :ip, :ua)";
+            $stmt_audit = $db->prepare($sql_audit);
+            $stmt_audit->execute([
+                ':id_sol' => $id_ticket,
+                ':estatus_ant' => $estatus_anterior,
+                ':estatus_nue' => $nuevo_estado,
+                ':usuario' => $usuario,
+                ':cedula' => $cedula,
+                ':rol' => $rol_usuario,
+                ':ip' => $ip,
+                ':ua' => $user_agent
+            ]);
+
             echo "<script>alert('Técnico asignado exitosamente'); window.location='index.php';</script>";
         } else {
             $errorAsignacion = 'Ocurrió un error al asignar el técnico, intente de nuevo.';

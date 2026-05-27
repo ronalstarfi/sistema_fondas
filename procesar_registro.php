@@ -77,6 +77,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // 3. Obtenemos el ID del ticket recién creado
         $id_ticket_nuevo = $db->lastInsertId();
 
+        // 4. Registrar en la bitácora de auditoría
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? 'Desconocido';
+        $usuario = $_SESSION['nombre'] ?? 'Solicitante Anónimo';
+        $cedula = $_SESSION['user_id'] ?? $ci;
+        $rol_usuario = $_SESSION['rol'] ?? 'Solicitante';
+
+        $sql_audit = "INSERT INTO auditoria_solicitudes 
+                     (id_solicitud, estatus_anterior, estatus_nuevo, usuario_que_cambio, cedula_usuario, rol_usuario, direccion_ip, user_agent) 
+                     VALUES 
+                     (:id_sol, 'N/A', 'ABIERTO', :usuario, :cedula, :rol, :ip, :ua)";
+        
+        $stmt_audit = $db->prepare($sql_audit);
+        $stmt_audit->bindParam(':id_sol', $id_ticket_nuevo);
+        $stmt_audit->bindParam(':usuario', $usuario);
+        $stmt_audit->bindParam(':cedula', $cedula);
+        $stmt_audit->bindParam(':rol', $rol_usuario);
+        $stmt_audit->bindParam(':ip', $ip);
+        $stmt_audit->bindParam(':ua', $user_agent);
+        $stmt_audit->execute();
+
         $db->commit();
 
         // --- INICIO DE LA MEJORA VISUAL ---
