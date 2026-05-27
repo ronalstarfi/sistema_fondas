@@ -41,29 +41,40 @@ if (isset($_SESSION['user_id'])) {
     <title>Nuevo Ticket - FONDAS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f4f7f6; }
+        body { background-color: #f4f7f6; margin: 0; padding: 0; }
+        .wrapper { width: 100%; margin: 0; }
+        .cintillo-container { background: white; padding: 0; text-align: center; }
+        .cintillo { width: 100%; height: 95px; object-fit: fill; display: block; margin: 0; }
         .navbar { background-color: #2c3e50; }
-        .card { border: none; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .card { border: none; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 40px; }
         .form-label { color: #2c3e50; }
     </style>
 </head>
 <body>
+<div class="wrapper">
+    <div class="cintillo-container">
+        <img src="img/logo3.png" alt="Cintillo FONDAS" class="cintillo">
+    </div>
+    
+    <nav style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; background-color: #2e7d32; color: white; padding: 12px 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+        <div style="font-weight: bold; font-size: 1.1rem; display: flex; align-items: center;">
+            <span style="margin-right: 8px;">📝</span> REGISTRO DE NUEVA SOLICITUD
+        </div>
+        <div style="display: flex; align-items: center; font-size: 0.9em; flex-wrap: wrap; gap: 15px;">
+            <span style="background: white; color: #333; padding: 6px 15px; border-radius: 50px; font-weight: 500; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                Usuario: <strong><?php echo htmlspecialchars($solicitante['nombre'] ?? 'Usuario'); ?></strong>
+            </span>
+            <a href="javascript:history.back()" style="color: white; text-decoration: none; border: 1px solid white; padding: 6px 15px; border-radius: 50px; font-weight: bold; transition: all 0.2s;">
+                Volver
+            </a>
+        </div>
+    </nav>
 
-<div class="container mt-5 mb-5">
+<div class="container mt-4">
     <div class="row justify-content-center">
-        <div class="col-md-9"> <!-- Un poco más ancho para que luzca el cintillo -->
-            
-            <!-- Botón Regresar minimalista arriba de la tarjeta -->
-            <div class="mb-2">
-                <a href="javascript:history.back()" style="text-decoration: none; color: #666; font-weight: bold; font-size: 0.9em;">
-                    ← REGRESAR AL PANEL
-                </a>
-            </div>
-
+        <div class="col-md-9">
             <div class="card shadow-sm border-0">
-                <div class="card-body p-0"> <!-- p-0 para que el logo toque los bordes si es necesario -->
-                    
-                    <!-- Cintillo Institucional centrado (Igual a ver_tickets.php) -->
+                <div class="card-body p-0">
                 <script>
                 document.addEventListener('DOMContentLoaded', function(){
                     var area = document.getElementById('area_problema');
@@ -103,12 +114,8 @@ if (isset($_SESSION['user_id'])) {
                     }
                 });
                 </script>
-                    <div class="text-center" style="padding: 0; overflow: hidden;">
-                        <img src="img/logo3.png" alt="Cintillo FONDAS" style="width: 100%; height: 95px; object-fit: fill; display: block; margin: 0;">
-                    </div>
-
-                    <!-- Título con la línea verde inferior -->
-                    <div class="px-4">
+                    <!-- Título -->
+                    <div class="px-4 mt-4">
                         <h4 style="color: #2e7d32; font-weight: bold; border-bottom: 2px solid #2e7d32; padding-bottom: 10px;">
                             Registrar Nueva Solicitud
                         </h4>
@@ -203,6 +210,7 @@ if (isset($_SESSION['user_id'])) {
             </div>
         </div>
     </div>
+</div>
 </div>
 
 </body>
