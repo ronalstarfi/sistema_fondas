@@ -94,12 +94,12 @@ if (!empty($estatus_filtro)) {
 
 $labels_dinamicos = [];
 $valores_dinamicos = [];
-$status_order = ['Asignado', 'En Proceso', 'Urgente', 'Cerrado'];
+$status_order = ['Abierto', 'En Proceso', 'Urgente', 'Cerrado'];
 $status_counts = array_fill_keys($status_order, 0);
 
 $sql_grafica = "SELECT 
                     SUM(CASE WHEN s.estatus = 'ABIERTO' AND s.fechainicial <= DATE_SUB(NOW(), INTERVAL 1 HOUR) THEN 1 ELSE 0 END) AS urgente,
-                    SUM(CASE WHEN s.estatus = 'ABIERTO' AND s.fechainicial > DATE_SUB(NOW(), INTERVAL 1 HOUR) THEN 1 ELSE 0 END) AS asignado,
+                    SUM(CASE WHEN s.estatus = 'ABIERTO' AND s.fechainicial > DATE_SUB(NOW(), INTERVAL 1 HOUR) THEN 1 ELSE 0 END) AS abierto,
                     SUM(CASE WHEN s.estatus = 'EN PROCESO' THEN 1 ELSE 0 END) AS en_proceso,
                     SUM(CASE WHEN s.estatus = 'CERRADO' THEN 1 ELSE 0 END) AS cerrado
                 FROM solicitud s WHERE $condicion_tiempo";
@@ -109,7 +109,7 @@ $stmt_g = $db->prepare($sql_grafica);
 $stmt_g->execute($params_grafica);
 $row = $stmt_g->fetch(PDO::FETCH_ASSOC);
 $status_counts['Urgente'] = (int) ($row['urgente'] ?? 0);
-$status_counts['Asignado'] = (int) ($row['asignado'] ?? 0);
+$status_counts['Abierto'] = (int) ($row['abierto'] ?? 0);
 $status_counts['En Proceso'] = (int) ($row['en_proceso'] ?? 0);
 $status_counts['Cerrado'] = (int) ($row['cerrado'] ?? 0);
 
@@ -221,7 +221,7 @@ foreach($res_esp as $row) {
                 <label class="fw-bold text-muted small">Estatus:</label>
                 <select name="estatus" class="form-select bg-light border-0 shadow-sm">
                     <option value="">Todos los estatus</option>
-                    <option value="ABIERTO" <?php echo ($estatus_filtro == 'ABIERTO') ? 'selected' : ''; ?>>Asignado</option>
+                    <option value="ABIERTO" <?php echo ($estatus_filtro == 'ABIERTO') ? 'selected' : ''; ?>>Abierto</option>
                     <option value="En Proceso" <?php echo ($estatus_filtro == 'En Proceso') ? 'selected' : ''; ?>>En Proceso</option>
                     <option value="URGENTE" <?php echo ($estatus_filtro == 'URGENTE') ? 'selected' : ''; ?>>Urgente</option>
                     <option value="Cerrado" <?php echo ($estatus_filtro == 'Cerrado') ? 'selected' : ''; ?>>Cerrado</option>
@@ -400,9 +400,9 @@ const flujoValues = <?php echo json_encode($valores_dinamicos); ?>;
 const especialistaCounts = <?php echo json_encode($cant_esp); ?>;
 const especialistaPercent = <?php echo json_encode($porc_esp); ?>;
 const flujoStatusColors = {
-    'Asignado': '#f59e0b',
+    'Abierto': '#ffc107',
     'En Proceso': '#0dcaf0',
-    'Urgente': '#dc2626',
+    'Urgente': '#dc3545',
     'Cerrado': '#198754'
 };
 
