@@ -89,6 +89,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $stmt = $db->prepare("INSERT INTO solicitante (ci, nombre, ubicacion, password) VALUES (:ci, :nom, :ub, :pass)");
                 $stmt->execute([':ci' => $cedula, ':nom' => $nombre, ':ub' => $ubicacion, ':pass' => $hash]);
             }
+
+            // Registrar en auditoría
+            $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+            $sql_audit = "INSERT INTO auditoria_general (tipo_movimiento, descripcion, usuario, direccion_ip) VALUES (?, ?, ?, ?)";
+            $stmt_audit = $db->prepare($sql_audit);
+            $stmt_audit->execute(['Registro de Cuenta', 'El usuario completó su registro de cuenta.', $nombre, $ip]);
             
             echo json_encode(['status' => 'success']);
         } catch (Exception $e) {

@@ -692,13 +692,8 @@ $logs_gen = $stmt_gen->fetchAll(PDO::FETCH_ASSOC);
 
                 var targetDate = new Date(dateStr + 'T00:00:00Z');
 
-                // Si no hay filtros aplicados, mostramos los registros de hoy por defecto
+                // Quitamos el filtro por defecto del día de hoy para que se vean todos los registros
                 if (!minStr && !maxStr && !searchStr) {
-                    var todayStr = '<?php echo $hoy; ?>';
-                    var todayDate = new Date(todayStr + 'T00:00:00Z');
-                    if (targetDate.getTime() !== todayDate.getTime()) {
-                        return false;
-                    }
                     return true;
                 }
 
@@ -730,13 +725,8 @@ $logs_gen = $stmt_gen->fetchAll(PDO::FETCH_ASSOC);
                 if (!dateStr) return true;
                 var targetDate = new Date(dateStr + 'T00:00:00Z');
 
-                // Si no hay filtros aplicados, mostramos los registros de hoy por defecto
+                // Quitamos el filtro por defecto del día de hoy para que se vean todos los registros
                 if (!minStr && !maxStr && !searchStr) {
-                    var todayStr = '<?php echo $hoy; ?>';
-                    var todayDate = new Date(todayStr + 'T00:00:00Z');
-                    if (targetDate.getTime() !== todayDate.getTime()) {
-                        return false;
-                    }
                     return true;
                 }
 
