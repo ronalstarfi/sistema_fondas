@@ -302,12 +302,22 @@ foreach($res_esp as $row) {
                     </thead>
                     <tbody>
                         <?php foreach($detalle_todos as $r): 
-                            $st = (strtoupper($r['estatus']) == 'CERRADO') ? 'cerrado' : 'abierto'; 
-                            if(strtoupper($r['estatus']) == 'EN PROCESO') $st = 'abierto'; 
-                            $estatus_texto = $r['estatus'];
+                            $estatus_texto = strtoupper(trim($r['estatus']));
                             $badge_bg = 'bg-warning text-dark';
-                            if(strtoupper($estatus_texto) == 'CERRADO') $badge_bg = 'bg-success';
-                            if(strtoupper($estatus_texto) == 'EN PROCESO') $badge_bg = 'bg-info text-white';
+                            
+                            $fecha_creacion = new DateTime($r['fechainicial']);
+                            $ahora = new DateTime();
+                            $dif = $ahora->diff($fecha_creacion);
+                            $horas_pasadas = ($dif->days * 24) + $dif->h;
+                            
+                            if($estatus_texto == 'ABIERTO' && $horas_pasadas >= 1) {
+                                $estatus_texto = "URGENTE";
+                                $badge_bg = 'bg-danger text-white';
+                            } elseif($estatus_texto == 'CERRADO') {
+                                $badge_bg = 'bg-success text-white';
+                            } elseif($estatus_texto == 'EN PROCESO') {
+                                $badge_bg = 'bg-info text-white';
+                            }
                         ?>
                         <tr>
                             <td class="ps-4">#<?php echo $r['id']; ?></td>
@@ -341,13 +351,30 @@ foreach($modales as $m): ?>
                 <table class="table table-hover align-middle mb-0">
                     <thead class="bg-light"><tr><th class="ps-4">ID</th><th>Solicitante</th><th>Descripción</th><th>Técnico</th><th>Fecha</th><th class="pe-4">Estado</th></tr></thead>
                     <tbody>
-                        <?php foreach($m['datos'] as $r): $st = (strtoupper($r['estatus']) == 'CERRADO') ? 'cerrado' : 'abierto'; ?>
+                        <?php foreach($m['datos'] as $r): 
+                            $est_mod = strtoupper(trim($r['estatus']));
+                            $st_class = 'abierto';
+                            
+                            $fecha_creacion_m = new DateTime($r['fechainicial']);
+                            $ahora_m = new DateTime();
+                            $dif_m = $ahora_m->diff($fecha_creacion_m);
+                            $horas_pasadas_m = ($dif_m->days * 24) + $dif_m->h;
+                            
+                            if($est_mod == 'ABIERTO' && $horas_pasadas_m >= 1) {
+                                $est_mod = "URGENTE";
+                                $st_class = "urgente";
+                            } elseif($est_mod == 'CERRADO') {
+                                $st_class = "cerrado";
+                            } elseif($est_mod == 'EN PROCESO') {
+                                $st_class = "proceso";
+                            }
+                        ?>
                         <tr><td class="ps-4">#<?php echo $r['id']; ?></td>
                             <td><span class="fw-bold text-dark"><?php echo htmlspecialchars($r['nombre_persona']); ?></span></td>
                             <td class="small text-muted"><?php echo htmlspecialchars(substr($r['descripcion'], 0, 50)) . '...'; ?></td>
                             <td><span class="badge bg-light text-dark border"><?php echo htmlspecialchars($r['tecnico_nombre'] ?? 'Sin asignar'); ?></span></td>
                             <td class="small"><?php echo date('d/m/Y', strtotime($r['fechainicial'])); ?></td>
-                            <td class="pe-4"><span class="status-pill <?php echo $st; ?>"><?php echo $r['estatus']; ?></span></td></tr>
+                            <td class="pe-4"><span class="status-pill <?php echo $st_class; ?>"><?php echo $est_mod; ?></span></td></tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
