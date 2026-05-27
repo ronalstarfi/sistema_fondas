@@ -29,7 +29,7 @@ BEGIN
     
     -- Historial de Tickets (auditoria_solicitudes)
     INSERT INTO auditoria_solicitudes (id_solicitud, estatus_anterior, estatus_nuevo, usuario_que_cambio, cedula_usuario, rol_usuario, direccion_ip, user_agent) 
-    VALUES (NEW.id, 'N/A', NEW.estatus, IFNULL(@app_user, USER()), 'N/A', 'DB/Sistema', IFNULL(@app_ip, 'N/A'), 'DB Trigger');
+    VALUES (NEW.id, 'N/A', NEW.estatus, IFNULL(@app_user, USER()), IFNULL(@app_cedula, 'N/A'), IFNULL(@app_rol, 'DB/Sistema'), IFNULL(@app_ip, 'N/A'), IFNULL(@app_ua, 'DB Trigger'));
 END//
 
 CREATE TRIGGER trg_solicitud_update AFTER UPDATE ON solicitud FOR EACH ROW
@@ -56,7 +56,7 @@ BEGIN
         
         -- Historial de Tickets (auditoria_solicitudes)
         INSERT INTO auditoria_solicitudes (id_solicitud, estatus_anterior, estatus_nuevo, usuario_que_cambio, cedula_usuario, rol_usuario, direccion_ip, user_agent) 
-        VALUES (OLD.id, OLD.estatus, NEW.estatus, IFNULL(@app_user, USER()), 'N/A', 'DB/Sistema', IFNULL(@app_ip, 'N/A'), CONCAT('DB Trigger: ', cambios));
+        VALUES (OLD.id, OLD.estatus, NEW.estatus, IFNULL(@app_user, USER()), IFNULL(@app_cedula, 'N/A'), IFNULL(@app_rol, 'DB/Sistema'), IFNULL(@app_ip, 'N/A'), IFNULL(@app_ua, CONCAT('DB Trigger: ', cambios)));
     END IF;
 END//
 
@@ -68,7 +68,7 @@ BEGIN
     
     -- Historial de Tickets (auditoria_solicitudes)
     INSERT INTO auditoria_solicitudes (id_solicitud, estatus_anterior, estatus_nuevo, usuario_que_cambio, cedula_usuario, rol_usuario, direccion_ip, user_agent) 
-    VALUES (OLD.id, OLD.estatus, 'ELIMINADO', IFNULL(@app_user, USER()), 'N/A', 'DB/Sistema', IFNULL(@app_ip, 'N/A'), 'DB Trigger - Eliminación');
+    VALUES (OLD.id, OLD.estatus, 'ELIMINADO', IFNULL(@app_user, USER()), IFNULL(@app_cedula, 'N/A'), IFNULL(@app_rol, 'DB/Sistema'), IFNULL(@app_ip, 'N/A'), IFNULL(@app_ua, 'DB Trigger - Eliminación'));
 END//
 
 -- ==========================================
