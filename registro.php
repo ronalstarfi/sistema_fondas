@@ -80,6 +80,20 @@ if (isset($_SESSION['user_id'])) {
                     var area = document.getElementById('area_problema');
                     var tipo = document.getElementById('id_tipo');
                     var marca = document.getElementById('id_marca');
+                    var areaInfo = document.getElementById('area_info');
+
+                    var areaDescriptions = {
+                        'Soporte': 'Soporte Técnico: para problemas con computadoras, impresoras, redes y equipo de escritorio.',
+                        'Infraestructura': 'Infraestructura: para cableado, servidores, switches, routers, firewall y equipos de red.',
+                        'Desarrollo': 'Desarrollo: para aplicaciones, software administrativo, sistemas y servicios de programación.',
+                        'Impresoras y Toner': 'Impresoras y Tóner: para impresoras, multifuncionales, plotters y consumo de tóner/cartuchos.',
+                        'SIGA': 'SIGA: para solicitudes relacionadas con el sistema SIGA y funciones administrativas especializadas.'
+                    };
+
+                    function showAreaInfo(areaVal) {
+                        if (!areaInfo) return;
+                        areaInfo.textContent = areaDescriptions[areaVal] || 'Seleccione el área para ver más detalles sobre el tipo de requerimiento.';
+                    }
 
                     function loadOptions(areaVal){
                         if(!areaVal) return;
@@ -108,9 +122,15 @@ if (isset($_SESSION['user_id'])) {
                     }
 
                     if(area){
-                        area.addEventListener('change', function(e){ loadOptions(e.target.value); });
+                        area.addEventListener('change', function(e){
+                            showAreaInfo(e.target.value);
+                            loadOptions(e.target.value);
+                        });
                         // Si ya hay un área seleccionada al cargar la página, cargar opciones
-                        if(area.value) loadOptions(area.value);
+                        if(area.value) {
+                            showAreaInfo(area.value);
+                            loadOptions(area.value);
+                        }
                     }
                 });
                 </script>
@@ -150,12 +170,13 @@ if (isset($_SESSION['user_id'])) {
                                 <label class="form-label fw-bold">Área del Requerimiento (Asignación Automática)</label>
                                 <select id="area_problema" name="area_problema" class="form-select border-primary" required>
                                     <option value="">Seleccione el área del problema...</option>
-                                    <option value="Soporte">Soporte Técnico</option>
-                                    <option value="Infraestructura">Infraestructura</option>
-                                    <option value="Desarrollo">Desarrollo</option>
-                                    <option value="Impresoras y Toner">Impresoras y Tóner (Asignado a Oswaldo M.)</option>
-                                    <option value="SIGA">SIGA (Asignar a Benjamin Acevedo)</option>
+                                    <option value="Soporte" title="Problemas de equipo de oficina, PC, impresoras y redes.">Soporte Técnico</option>
+                                    <option value="Infraestructura" title="Problemas de red, servidores, firewall y cableado de infraestructura.">Infraestructura</option>
+                                    <option value="Desarrollo" title="Solicitudes relacionadas con software, sistemas y aplicaciones.">Desarrollo</option>
+                                    <option value="Impresoras y Toner" title="Incidentes con impresoras, multifuncionales, plotters y tóner.">Impresoras y Tóner (Asignado a Oswaldo M.)</option>
+                                    <option value="SIGA" title="Consultas y soporte para el sistema SIGA y sus módulos.">SIGA (Asignar a Benjamin Acevedo)</option>
                                 </select>
+                                <div id="area_info" class="form-text text-muted mt-1">Seleccione el área para ver más detalles sobre el tipo de requerimiento.</div>
                                 <div class="form-text">El sistema asigna automáticamente el ticket al técnico activo con la menor carga en el área seleccionada.</div>
                             </div>
 

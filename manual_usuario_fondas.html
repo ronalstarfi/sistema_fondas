@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Manual de Usuario - FONDAS</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; color: #333; }
+        h1, h2, h3 { color: #1b5e20; }
+        h1 { font-size: 32px; margin-bottom: 10px; }
+        h2 { font-size: 24px; margin-top: 40px; }
+        h3 { font-size: 18px; margin-top: 24px; }
+        p, li { font-size: 12px; line-height: 1.6; }
+        ul { margin: 0 0 20px 20px; }
+        .section { margin-bottom: 24px; }
+        .screenshot { width: 100%; max-width: 680px; border: 1px solid #ccc; margin: 12px 0; }
+        .screenshot-caption { font-size: 11px; color: #555; margin-bottom: 20px; }
+        .note { background: #eef7eb; border-left: 4px solid #2e7d32; padding: 10px 14px; margin: 18px 0; }
+        .button { display: inline-block; background: #1b5e20; color: white; padding: 10px 14px; border-radius: 4px; text-decoration: none; margin: 10px 10px 20px 0; font-weight: bold; }
+        .button:hover { background: #145a32; }
+        .footer { margin-top: 40px; font-size: 10px; color: #666; }
+        .divider { border-top: 1px solid #d9d9d9; margin: 30px 0; }
+    </style>
+</head>
+<body>
+    <h1>Manual de Usuario - Sistema FONDAS</h1>
+    <p>Este manual describe el funcionamiento completo del sistema de gestión de tickets FONDAS: pantallas, botones, flujos, mensajes y ejemplos visuales.</p>
+    <div class="note">Abre este manual desde tu navegador con <strong>http://localhost/sistema_fondas/manual_usuario_fondas.html</strong>. Desde ahí podrás ver correctamente todas las imágenes y usar la opción de descargar como PDF.</div>
+    <a class="button" href="http://localhost/sistema_fondas/manual_usuario_fondas.html" target="_blank">Abrir en navegador</a>
+    <a class="button" href="#" onclick="window.print(); return false;">Descargar como PDF</a>
+
+    <div class="section">
+        <h2>Índice</h2>
+        <ul>
+            <li><a href="#acceso">1. Acceso</a></li>
+            <li><a href="#registro">2. Registro y recuperación de contraseña</a></li>
+            <li><a href="#solicitante">3. Panel de Solicitante</a></li>
+            <li><a href="#registro_solicitud">4. Registro de nueva solicitud</a></li>
+            <li><a href="#consultas">5. Consulta de tickets</a></li>
+            <li><a href="#especialista">6. Especialista / Técnico</a></li>
+            <li><a href="#auditoria">7. Auditoría y reportes</a></li>
+            <li><a href="#seguridad">8. Seguridad y sesiones</a></li>
+            <li><a href="#db">9. Base de datos y mantenimiento</a></li>
+            <li><a href="#anexos">10. Anexos y capturas</a></li>
+            <li><a href="#checklist">11. Checklist por roles</a></li>
+        </ul>
+    </div>
+
+    <div class="section" id="acceso">
+        <h2>1. Acceso al sistema</h2>
+        <h3>1.1 Página de Login</h3>
+        <p>Acceso desde <strong>login.php</strong>. Campos obligatorios:</p>
+        <ul>
+            <li>Tipo de documento: V, E o J</li>
+            <li>Cédula: solo números (máx. 8 dígitos)</li>
+            <li>Contraseña</li>
+        </ul>
+        <img src="screenshots/login.png" alt="Pantalla de login de FONDAS" class="screenshot">
+        <div class="screenshot-caption">Figura: Login.</div>
+        <p>Enlaces disponibles: <strong>¿Olvidó su contraseña?</strong> y <strong>Registrarse</strong>.</p>
+    </div>
+
+    <div class="section" id="registro">
+        <h2>2. Registro de usuario y recuperación de contraseña</h2>
+        <h3>2.1 Registro de nuevo solicitante</h3>
+        <p>Formulario en <strong>registro_usuario.php</strong> con campos: cédula, nombre, gerencia, contraseña y confirmar contraseña.</p>
+        <img src="screenshots/registro_usuario.png" alt="Pantalla de registro de usuario" class="screenshot">
+        <div class="screenshot-caption">Figura: Registro de usuario.</div>
+        <h3>2.2 Recuperación de clave</h3>
+        <p>Flujo: `gestion_clave.php` -> `procesar_recuperacion.php` -> `nueva_clave.php` -> `guardar_clave.php`.</p>
+    </div>
+
+    <div class="section" id="solicitante">
+        <h2>3. Panel de Solicitante</h2>
+        <p>Ubicado en <strong>index_solicitante.php</strong>. Desde aquí puede crear solicitudes o consultar sus tickets.</p>
+        <img src="screenshots/index_solicitante.png" alt="Panel solicitante" class="screenshot">
+        <div class="screenshot-caption">Figura: Panel de Solicitante.</div>
+    </div>
+
+    <div class="section" id="registro_solicitud">
+        <h2>4. Registro de nueva solicitud</h2>
+        <p>Página <strong>registro.php</strong>. Pasos:</p>
+        <ol>
+            <li>Seleccionar área del problema.</li>
+            <li>Seleccionar tipo y marca (se cargan vía AJAX).</li>
+            <li>Escribir descripción y adjuntar archivos (si aplica).</li>
+            <li>Presionar <strong>Enviar</strong> para crear la solicitud.</li>
+        </ol>
+        <img src="screenshots/registro_ticket.png" alt="Formulario registro de ticket" class="screenshot">
+        <div class="screenshot-caption">Figura: Crear nueva solicitud.</div>
+    </div>
+
+    <div class="section" id="consultas">
+        <h2>5. Consulta de tickets</h2>
+        <p>Página <strong>ver_tickets.php</strong>. La tabla incluye columnas: ID, descripción, solicitante, técnico, estado, fecha, acciones.</p>
+        <img src="screenshots/ver_tickets.png" alt="Listado de tickets" class="screenshot">
+        <div class="screenshot-caption">Figura: Listado de tickets y filtros.</div>
+        <h3>Acciones</h3>
+        <ul>
+            <li><strong>ACEPTAR</strong>: asigna el ticket al especialista/técnico.</li>
+            <li><strong>ASIGNAR</strong>: reasignación a otro técnico.</li>
+            <li><strong>VER</strong>: ver detalle y comentarios.</li>
+            <li><strong>CERRAR</strong>: cerrar con comentario final.</li>
+        </ul>
+    </div>
+
+    <div class="section" id="especialista">
+        <h2>6. Roles y funciones (Especialista / Técnico / Jefe)</h2>
+        <p>Panel de especialista: <strong>views/home_especialista.php</strong>. Funcionalidades: Gestión de tickets, Control de personal, Reportes y auditoría.</p>
+        <div class="note">Si el manual se sirve desde el servidor (por ejemplo <code>http://localhost/sistema_fondas/</code>), puedes ver el panel en vivo a continuación. Si estás abriendo el HTML por fichero, usa el enlace alternativo.</div>
+        <div class="note">Para ver el manual completo en el navegador, abre este enlace en tu navegador web: <a href="http://localhost/sistema_fondas/manual_usuario_fondas.html" target="_blank">http://localhost/sistema_fondas/manual_usuario_fondas.html</a>. Desde esa página podrás descargar el manual como PDF usando el botón de impresión del navegador.</div>
+        <a class="button" href="#" onclick="window.print(); return false;">Descargar como PDF</a>
+        <h3>Notificaciones</h3>
+        <p>Polling cada 3s a <strong>ajax/check_new_tickets.php</strong>. Si hay nuevos tickets se muestra alerta sonora y visual.</p>
+    </div>
+
+    <div class="section" id="auditoria">
+        <h2>7. Auditoría y reportes</h2>
+        <p>Generación de reportes en PDF: <strong>views/generate_reporte_pdf.php</strong>. Filtros: fechas, área, estado.</p>
+        <img src="screenshots/generate_reporte.png" alt="Generar reporte" class="screenshot">
+        <div class="screenshot-caption">Figura: Generar reporte PDF.</div>
+        <h3>Auditoría</h3>
+        <p>Ver registros en <strong>auditoria_sistema.php</strong>. Incluye IP, usuario, acción y timestamp.</p>
+        <img src="screenshots/auditoria.png" alt="Auditoria" class="screenshot">
+    </div>
+
+    <div class="section" id="seguridad">
+        <h2>8. Seguridad y sesiones</h2>
+        <p>Acceso protegido por sesiones. Páginas como <strong>ver_tickets.php</strong> requieren sesión activa; de lo contrario redirigen a <strong>login.php</strong>.</p>
+        <p>Flujos de clave: <strong>gestion_clave.php</strong>, <strong>procesar_recuperacion.php</strong>, <strong>nueva_clave.php</strong>, <strong>guardar_clave.php</strong>.</p>
+    </div>
+
+    <div class="section" id="db">
+        <h2>9. Base de datos y mantenimiento</h2>
+        <p>Tablas importantes: `solicitante`, `especialista`, `solicitud`, `tipo`, `marca`, `area_problema`, `auditoria_general`.</p>
+        <p>Scripts de utilidad en la carpeta <strong>scripts/</strong> (inicializadores y validadores de esquema).</p>
+    </div>
+
+    <div class="section" id="anexos">
+        <h2>10. Anexos y capturas</h2>
+        <p>Colocar las siguientes capturas en la carpeta <strong>screenshots/</strong> para que el manual sea visualmente completo:</p>
+        <ul>
+            <li>login.png</li>
+            <li>registro_usuario.png</li>
+            <li>index_solicitante.png</li>
+            <li>registro_ticket.png</li>
+            <li>ver_tickets.png</li>
+            <li>aceptar_ticket.png</li>
+            <li>cerrar_ticket.png</li>
+            <li>home_especialista.png</li>
+            <li>generate_reporte.png</li>
+            <li>auditoria.png</li>
+        </ul>
+        <p class="note">Nota: si deseas, puedo generar imágenes de ejemplo o insertar capturas que me proporciones.</p>
+    </div>
+
+    <div class="section" id="checklist">
+        <h2>11. Checklist por roles</h2>
+        <p>Checklist para validar que el manual documenta todas las pantallas, botones, mensajes y flujos por rol. Marcar cada ítem cuando esté documentado y con captura asociada.</p>
+
+        <h3>Solicitante</h3>
+        <ul>
+            <li>Pantalla de Login (`login.php`) - Campos, enlaces y mensajes - <em>captura:</em> login.png</li>
+            <li>Registro de usuario (`registro_usuario.php`) - Campos, validaciones, mensajes - <em>captura:</em> registro_usuario.png</li>
+            <li>Panel de solicitante (`index_solicitante.php`) - botones y enlaces - <em>captura:</em> index_solicitante.png</li>
+            <li>Crear nueva solicitud (`registro.php`) - Campos, AJAX (`ajax/get_options.php`), enviar/limpiar - <em>captura:</em> registro_ticket.png</li>
+            <li>Ver mis tickets (`ver_tickets.php` - vista solicitante) - filtros y acciones - <em>captura:</em> ver_tickets_solicitante.png</li>
+        </ul>
+
+        <h3>Especialista</h3>
+        <ul>
+            <li>Panel de Especialista (`views/home_especialista.php`) - widgets y accesos - <em>captura:</em> home_especialista.png</li>
+            <li>Listado de tickets (`ver_tickets.php`) - columnas, filtros y polling - <em>captura:</em> ver_tickets.png</li>
+            <li>Acciones en fila: ACEPTAR, ASIGNAR, VER, CERRAR - <em>capturas:</em> aceptar_ticket.png, cerrar_ticket.png</li>
+            <li>Notificaciones y alertas - comportamiento y configuración</li>
+        </ul>
+
+        <h3>Técnico</h3>
+        <ul>
+            <li>Panel y acceso (si aplica) - ver tickets asignados - <em>captura:</em> panel_tecnico.png</li>
+            <li>Reglas de tiempo y prioridad (umbral URGENTE)</li>
+        </ul>
+
+        <h3>Jefe / Administrador</h3>
+        <ul>
+            <li>Auditoría (`auditoria_sistema.php`) - filtros y campos - <em>captura:</em> auditoria.png</li>
+            <li>Generación de reportes (`views/generate_reporte_pdf.php`) - parámetros y export PDF - <em>captura:</em> generate_reporte.png</li>
+            <li>Gestión de personal (`views/control_personal.php`) - activar/desactivar, asignar áreas - <em>captura:</em> control_personal.png</li>
+        </ul>
+
+        <h3>Endpoints y DB</h3>
+        <ul>
+            <li>`ajax/get_options.php` - parámetros y ejemplo JSON</li>
+            <li>`ajax/check_new_tickets.php` - formato y frecuencia de polling</li>
+            <li>Tablas críticas y scripts: `solicitud`, `especialista`, `solicitante`, `tablas_auditoria.sql`</li>
+        </ul>
+
+        <p class="note">Este checklist también se encuentra en `manual_checklist_by_role.md`.</p>
+    </div>
+
+    <div class="footer">Generado desde el sistema FONDAS. Actualizar las capturas en la carpeta <strong>screenshots/</strong> para completar el manual visual.</div>
+</body>
+</html>

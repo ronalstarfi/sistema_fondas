@@ -13,7 +13,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id_tipo = $_POST['id_tipo'];
     $id_marca_seleccionada = $_POST['id_marca']; 
     $descripcion = $_POST['descripcion'];
-    $fecha = date('Y-m-d H:i:s');
 
     try {
         $db->beginTransaction();
@@ -56,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // 2. Insertamos la solicitud
         $sql = "INSERT INTO solicitud (ci, area_problema, tsolicitud, marca_id, descripcion, estatus, fechainicial, especialista_id) 
-                VALUES (:ci, :area, :tipo, :marca_id, :desc, 'ABIERTO', :fecha, :tec_id)";
+                VALUES (:ci, :area, :tipo, :marca_id, :desc, 'ABIERTO', NOW(), :tec_id)";
         
         $stmt = $db->prepare($sql);
         $stmt->bindParam(':ci', $ci);
@@ -64,7 +63,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bindParam(':tipo', $id_tipo);
         $stmt->bindParam(':marca_id', $id_marca_seleccionada);
         $stmt->bindParam(':desc', $descripcion);
-        $stmt->bindParam(':fecha', $fecha);
         $stmt->bindParam(':tec_id', $tecnico_id);
         $stmt->execute();
 

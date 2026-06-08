@@ -124,6 +124,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['confirmar_cierre'])) {
             width: auto;
             max-width: 220px;
         }
+        /* Preferencia: que el botón "Cancelar y Volver" tenga un hover sutil
+           que preserve el movimiento pero no lo rellene completamente de verde. */
+        .btn-back:hover {
+            background: rgba(46, 125, 50, 0.08);
+            color: #2e7d32;
+            transform: translateY(-2px);
+            box-shadow: none;
+            border-color: #2e7d32;
+            text-decoration: none;
+        }
         .loc-highlight { color: #d32f2f; font-weight: bold; }
     </style>
 </head>

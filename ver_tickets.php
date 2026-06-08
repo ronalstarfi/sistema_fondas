@@ -742,6 +742,11 @@ if ($rol_sesion !== 'Solicitante') {
                         var timeout = (diff >= 5) ? 20000 : 12000;
                         setTimeout(function(){ alertBox.removeClass('show'); }, timeout);
                     }
+
+                    // Actualizar la página automáticamente cuando se detecta un ticket nuevo.
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 1500);
                 }
 
             function highlightNewRows() {
@@ -812,8 +817,7 @@ if ($rol_sesion !== 'Solicitante') {
         });
     </script>
         <audio id="notifAudio" preload="auto">
-            <source src="assets/notification_fallback.mp3" type="audio/mpeg">
-            <source src="assets/notification_fallback.ogg" type="audio/ogg">
+            <source src="assets/tono1.mp3" type="audio/mpeg">
         </audio>
 </body>
 </html>

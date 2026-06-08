@@ -198,8 +198,12 @@ session_start();
                         <option value="E">E</option>
                         <option value="J">J</option>
                     </select>
-                    <input type="text" name="ci" placeholder="Cédula" 
-                           pattern="[0-9]+" title="Ingrese solo números" required>
+                    <input type="text" name="ci" placeholder="Cédula"
+                           inputmode="numeric" maxlength="8"
+                           pattern="[0-9]{1,8}"
+                           title="Ingrese solo números (máximo 8 dígitos)"
+                           oninput="this.value = this.value.replace(/\D/g, '').slice(0, 8);"
+                           required>
                 </div>
 
                 <input type="password" name="password" placeholder="Contraseña" required>

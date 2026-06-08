@@ -17,7 +17,7 @@ $nombre_usuario = $_SESSION['nombre'] ?? 'Usuario';
             height: 100%;
             margin: 0;
             padding: 0;
-            overflow: hidden;
+            overflow: auto;
         }
 
         body {
@@ -27,16 +27,20 @@ $nombre_usuario = $_SESSION['nombre'] ?? 'Usuario';
             flex-direction: column;
         }
 
+        /* Caja principal: ahora ocupa todo el ancho para que el cintillo y la franja
+           verde se vean a pantalla completa; si prefieres quitar la caja blanca,
+           lo dejamos en blanco aquí y lo elimino en una próxima edición. */
         .wrapper {
-            max-width: 1100px;
-            margin: 20px auto;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-            border-radius: 10px;
-            overflow: hidden;
+            width: 100%;
+            max-width: none;
+            margin: 0;
+            box-shadow: none;
+            border-radius: 0;
+            overflow: visible;
             background: white;
             display: flex;
             flex-direction: column;
-            min-height: calc(100vh - 120px);
+            min-height: 100vh;
         }
 
         .cintillo-container {
@@ -201,14 +205,14 @@ $nombre_usuario = $_SESSION['nombre'] ?? 'Usuario';
                 <div class="icon-container">
                     <div class="opcion-modulo">
                         <a href="registro.php">
-                            <img src="img/nuevasolicitud.png" alt="Crear Nueva Solicitud">
+                            <img src="img/tickets1.png" alt="Crear Nueva Solicitud">
                             <p>Crear Nueva Solicitud</p>
                         </a>
                     </div>
 
                     <div class="opcion-modulo">
                         <a href="ver_tickets.php">
-                            <img src="img/consultarticket.png" alt="Consultar mis Tickets">
+                            <img src="img/auditoria2.png" alt="Consultar mis Tickets">
                             <p>Consultar mis Tickets</p>
                         </a>
                     </div>
