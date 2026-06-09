@@ -188,7 +188,7 @@ $historial_asistencia = $stmt_h->fetchAll(PDO::FETCH_ASSOC);
                             
                             <div class="photo-wrapper">
                                 <?php if(file_exists($ruta_foto)): ?>
-                                    <img src="<?php echo $ruta_foto; ?>" class="user-photo" alt="Perfil">
+                                    <img src="<?php echo $ruta_foto . '?v=' . filemtime($ruta_foto); ?>" class="user-photo" alt="Perfil">
                                 <?php else: ?>
                                     <i class="fas fa-user-circle no-photo-icon"></i>
                                 <?php endif; ?>
