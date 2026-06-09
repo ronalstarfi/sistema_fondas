@@ -8,6 +8,7 @@ session_start();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acceso al Sistema - FONDAS</title>
     <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body, html { height: 100%; margin: 0; font-family: 'Segoe UI', Tahoma, sans-serif; overflow: hidden; }
 
@@ -157,6 +158,32 @@ session_start();
             font-weight: bold;
         }
         .links a:hover { text-decoration: underline; }
+
+        /* Botón de Ayuda Flotante */
+        .help-btn {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background-color: #2e7d32;
+            color: white;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 26px;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(46, 125, 50, 0.4);
+            transition: transform 0.3s, background-color 0.3s;
+            z-index: 1000;
+        }
+
+        .help-btn:hover {
+            transform: scale(1.1);
+            background-color: #1b5e20;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -217,6 +244,11 @@ session_start();
             </form>
         </div>
     </div>
+
+    <!-- Botón flotante de ayuda -->
+    <a href="manual_usuario_fondas.html" class="help-btn" target="_blank" title="¿Necesitas ayuda? Ver Manual">
+        <i class="fa-solid fa-question"></i>
+    </a>
 
 </body>
 </html>
