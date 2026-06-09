@@ -5,7 +5,6 @@ session_start();
 <html lang="es" translate="no">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acceso al Sistema - FONDAS</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -246,7 +245,7 @@ session_start();
     </div>
 
     <!-- Botón flotante de ayuda -->
-    <a href="manual_usuario_fondas.html" class="help-btn" target="_blank" title="¿Necesitas ayuda? Ver Manual">
+    <a href="manual_usuario_fondas.html?v=ext" class="help-btn" target="_blank" title="¿Necesitas ayuda? Ver Manual">
         <i class="fa-solid fa-question"></i>
     </a>
 

@@ -2,7 +2,6 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manual Interactivo - FONDAS</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -284,6 +283,28 @@
         ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
 
+        /* Embedded mode overrides */
+        body.embedded {
+            background: white;
+            display: block;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        body.embedded .app-container {
+            width: 100%;
+            height: 100vh;
+            max-width: none;
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            background: transparent;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+        body.embedded .blob { display: none; }
+        body.embedded .sidebar { background: #fafafa; border-right: 1px solid #eee; }
+        body.embedded .main-content { background: white; }
     </style>
 </head>
 <body>
@@ -305,6 +326,9 @@
 
         <!-- Main Content -->
         <div class="main-content">
+            <button id="btnVolverSuperior" class="nav-btn btn-outline" onclick="cerrarManual()" style="position: absolute; top: 15px; right: 25px; z-index: 100; font-size: 0.85rem; padding: 8px 16px; background: rgba(255,255,255,0.9);">
+                <i class="fa-solid fa-arrow-left"></i> Volver al sistema
+            </button>
             <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
             
             <div class="slides-container" id="slides-container">
@@ -539,7 +563,7 @@
     <!-- Scripts for interactivity -->
     <script>
         let currentSlide = 0;
-        const slides = document.querySelectorAll('.slide');
+        let slides = document.querySelectorAll('.slide');
         const navMenu = document.getElementById('nav-menu');
         const btnPrev = document.getElementById('btn-prev');
         const btnNext = document.getElementById('btn-next');
@@ -548,16 +572,51 @@
 
         // Initialize Navigation Menu
         function initNav() {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            if (urlParams.get('embed') === 'true') {
+                document.body.classList.add('embedded');
+                const btnVolver = document.getElementById('btnVolverSuperior');
+                if (btnVolver) btnVolver.style.display = 'none';
+            }
+
+            if (urlParams.get('v') === 'ext') {
+                // Keep only 0 to 5
+                for (let i = 6; i < slides.length; i++) {
+                    slides[i].remove();
+                }
+                slides = document.querySelectorAll('.slide');
+            } else if (urlParams.get('v') === 'int') {
+                // Keep only 6 and above (remove 0 to 5)
+                for (let i = 0; i < 6; i++) {
+                    if (slides[i]) slides[i].remove();
+                }
+                slides = document.querySelectorAll('.slide');
+            }
+
             slides.forEach((slide, index) => {
-                const title = slide.getAttribute('data-title');
+                let displayTitle = slide.getAttribute('data-title');
                 
                 // Icon assignment based on index
                 const icons = ['fa-house', 'fa-right-to-bracket', 'fa-user-plus', 'fa-user', 'fa-file-circle-plus', 'fa-list-check', 'fa-user-tie', 'fa-file-pdf', 'fa-shield-halved', 'fa-database', 'fa-list-ol'];
-                const iconClass = icons[index] || 'fa-circle';
+                
+                let iconIndex = index;
+                if (urlParams.get('v') === 'int') {
+                    iconIndex = index + 6; // Offset by 6 since we removed 0-5
+                    
+                    // Rename the heading inside the slide to start from 1
+                    const h2 = slide.querySelector('h2');
+                    if (h2 && /^\d+\./.test(h2.textContent)) {
+                        h2.textContent = h2.textContent.replace(/^\d+\.\s*/, `${index + 1}. `);
+                    }
+                    
+                    displayTitle = `${index + 1}. ` + displayTitle.replace(/^\d+\.\s*/, '');
+                }
+                const iconClass = icons[iconIndex] || 'fa-circle';
 
                 const navItem = document.createElement('div');
                 navItem.className = 'nav-item';
-                navItem.innerHTML = `<i class="fa-solid ${iconClass}"></i> ${title}`;
+                navItem.innerHTML = `<i class="fa-solid ${iconClass}"></i> ${displayTitle}`;
                 navItem.onclick = () => goToSlide(index);
                 navMenu.appendChild(navItem);
             });
@@ -600,10 +659,17 @@
             progressBar.style.width = `${progressPct}%`;
         }
 
+        function cerrarManual() {
+            window.close();
+            if (!window.closed) {
+                window.history.back();
+            }
+        }
+
         function changeSlide(direction) {
             const newSlide = currentSlide + direction;
             if (newSlide === slides.length) {
-                window.location.href = 'login.php';
+                cerrarManual();
                 return;
             }
             if(newSlide >= 0 && newSlide < slides.length) {

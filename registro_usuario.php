@@ -386,5 +386,11 @@ function registrarUsuario(e) {
     });
 }
 </script>
+
+<!-- Botón flotante de ayuda -->
+<a href="manual_usuario_fondas.html?v=ext" style="position: fixed; bottom: 25px; right: 25px; background-color: #2e7d32; color: white; width: 55px; height: 55px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 26px; text-decoration: none; box-shadow: 0 4px 15px rgba(46, 125, 50, 0.4); z-index: 1000;" target="_blank" title="¿Necesitas ayuda? Ver Manual">
+    <i class="bi bi-question-lg"></i>
+</a>
+
 </body>
 </html>

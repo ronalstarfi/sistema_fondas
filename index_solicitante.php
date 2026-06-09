@@ -12,6 +12,8 @@ $nombre_usuario = $_SESSION['nombre'] ?? 'Usuario';
 <head>
     <meta charset="UTF-8">
     <title>Panel de Solicitante - FONDAS</title>
+    <!-- FontAwesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         html, body {
             height: 100%;
@@ -214,6 +216,13 @@ $nombre_usuario = $_SESSION['nombre'] ?? 'Usuario';
                         <a href="ver_tickets.php">
                             <img src="img/auditoria2.png" alt="Consultar mis Tickets">
                             <p>Consultar mis Tickets</p>
+                        </a>
+                    </div>
+
+                    <div class="opcion-modulo">
+                        <a href="manual.php">
+                            <img src="img/manual_icon.png" alt="Manual de Usuario" style="width: 140px; height: auto; margin-bottom: 15px; display: block; mix-blend-mode: multiply;">
+                            <p>MANUAL DE USUARIO</p>
                         </a>
                     </div>
                 </div>

@@ -33,8 +33,9 @@ if ($db) {
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Especialista - FONDAS</title>
+    <!-- FontAwesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* Estilos originales preservados */
         html, body {
@@ -175,9 +176,10 @@ if ($db) {
 
         .icon-container {
             display: flex;
-            gap: 50px;
+            gap: 40px;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
+            flex-wrap: wrap;
         }
 
         .opcion-modulo {
@@ -278,6 +280,13 @@ if ($db) {
                     </a>
                 </div>
             <?php endif; ?>
+
+            <div class="opcion-modulo">
+                <a href="../manual.php">
+                    <img src="../img/manual_icon.png" alt="Manual de Usuario" style="width: 140px; height: auto; margin-bottom: 15px; display: block; mix-blend-mode: multiply;">
+                    <p>MANUAL DE USUARIO</p>
+                </a>
+            </div>
                 </div> <!-- .icon-container -->
             </main>
         </div> <!-- .container -->
