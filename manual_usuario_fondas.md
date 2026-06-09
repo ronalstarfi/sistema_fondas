@@ -1,7 +1,7 @@
 # Manual de Usuario - Sistema FONDAS
 
 ## Introducción
-Este manual describe el uso del sistema de gestión de tickets FONDAS para todos los roles: Solicitante, Especialista, Técnico y Jefe.
+Este manual describe el uso del sistema de gestión de tickets FONDAS para todos los roles: Solicitante, Especialista, Técnico y Alta Gerencia.
 
 El sistema permite registrar solicitudes, gestionar tickets, recibir notificaciones automáticas y monitorear estados.
 
