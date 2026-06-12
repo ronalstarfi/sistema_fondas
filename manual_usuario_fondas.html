@@ -169,6 +169,45 @@
             display: block;
         }
 
+        @media print {
+            body, html {
+                min-height: auto;
+                overflow: visible !important;
+            }
+            .app-container,
+            .main-content,
+            .slides-container {
+                height: auto !important;
+                overflow: visible !important;
+                padding: 0 20px 20px !important;
+            }
+            .sidebar,
+            .nav-footer,
+            .nav-btn,
+            .slide-counter,
+            .btn-link,
+            #btnVolverSuperior {
+                display: none !important;
+            }
+            .slide {
+                display: block !important;
+                page-break-after: always;
+                animation: none !important;
+            }
+            .slide:last-child {
+                page-break-after: auto;
+            }
+            .print-page-break {
+                page-break-before: always;
+                break-before: page;
+            }
+            .screenshot-wrapper,
+            h1, h2, h3,
+            p, ul, ol, blockquote {
+                page-break-inside: avoid;
+            }
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -386,7 +425,7 @@
                         <div class="screenshot-caption">Figura 2: Formulario de Registro de usuario.</div>
                     </div>
 
-                    <h3>2.2 Recuperación de clave</h3>
+                    <h3 class="print-page-break">2.2 Recuperación de clave</h3>
                     <p>En caso de olvido, el sistema tiene un flujo seguro de recuperación en 4 pasos:</p>
                     <ol>
                         <li>Ingresa tu cédula en <code>gestion_clave.php</code>.</li>
@@ -437,7 +476,7 @@
                         <div class="screenshot-caption">Figura 5: Listado de tickets con filtros avanzados.</div>
                     </div>
 
-                    <h3>Acciones disponibles por fila</h3>
+                    <h3 class="print-page-break">Acciones disponibles por fila</h3>
                     <ul>
                         <li><i class="fa-solid fa-hand-pointer" style="color:var(--primary)"></i> <strong>ACEPTAR:</strong> El técnico toma la responsabilidad del ticket.</li>
                         <li><i class="fa-solid fa-users" style="color:var(--primary)"></i> <strong>ASIGNAR:</strong> Permite reasignar a otro técnico especializado.</li>
@@ -475,7 +514,7 @@
                         <div class="screenshot-caption">Figura 6: Módulo de generación de reportes en PDF.</div>
                     </div>
 
-                    <h3>Registro de Auditoría</h3>
+                    <h3 class="print-page-break">Registro de Auditoría</h3>
                     <p>Todo movimiento queda registrado por seguridad. En <strong>auditoria_sistema.php</strong>, los administradores pueden consultar logs detallados que incluyen la IP de origen, el usuario, la acción realizada y la marca de tiempo exacta.</p>
                     <div class="screenshot-wrapper">
                         <img src="screenshots/auditoria.png" alt="Auditoria" class="screenshot">
@@ -563,7 +602,7 @@
     <!-- Scripts for interactivity -->
     <script>
         let currentSlide = 0;
-        let slides = document.querySelectorAll('.slide');
+        let slides = Array.from(document.querySelectorAll('.slide'));
         const navMenu = document.getElementById('nav-menu');
         const btnPrev = document.getElementById('btn-prev');
         const btnNext = document.getElementById('btn-next');
@@ -580,18 +619,15 @@
                 if (btnVolver) btnVolver.style.display = 'none';
             }
 
-            if (urlParams.get('v') === 'ext') {
-                // Keep only 0 to 5
-                for (let i = 6; i < slides.length; i++) {
-                    slides[i].remove();
+            const viewMode = urlParams.get('v');
+            if (viewMode === 'ext') {
+                // Solicitante: mostrar sólo las secciones principales de usuarios solicitantes
+                for (let i = slides.length - 1; i >= 6; i--) {
+                    if (slides[i] && slides[i].parentNode) {
+                        slides[i].parentNode.removeChild(slides[i]);
+                    }
                 }
-                slides = document.querySelectorAll('.slide');
-            } else if (urlParams.get('v') === 'int') {
-                // Keep only 6 and above (remove 0 to 5)
-                for (let i = 0; i < 6; i++) {
-                    if (slides[i]) slides[i].remove();
-                }
-                slides = document.querySelectorAll('.slide');
+                slides = slides.slice(0, 6);
             }
 
             slides.forEach((slide, index) => {
@@ -600,19 +636,7 @@
                 // Icon assignment based on index
                 const icons = ['fa-house', 'fa-right-to-bracket', 'fa-user-plus', 'fa-user', 'fa-file-circle-plus', 'fa-list-check', 'fa-user-tie', 'fa-file-pdf', 'fa-shield-halved', 'fa-database', 'fa-list-ol'];
                 
-                let iconIndex = index;
-                if (urlParams.get('v') === 'int') {
-                    iconIndex = index + 6; // Offset by 6 since we removed 0-5
-                    
-                    // Rename the heading inside the slide to start from 1
-                    const h2 = slide.querySelector('h2');
-                    if (h2 && /^\d+\./.test(h2.textContent)) {
-                        h2.textContent = h2.textContent.replace(/^\d+\.\s*/, `${index + 1}. `);
-                    }
-                    
-                    displayTitle = `${index + 1}. ` + displayTitle.replace(/^\d+\.\s*/, '');
-                }
-                const iconClass = icons[iconIndex] || 'fa-circle';
+                const iconClass = icons[index] || 'fa-circle';
 
                 const navItem = document.createElement('div');
                 navItem.className = 'nav-item';

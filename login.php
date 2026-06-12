@@ -244,10 +244,5 @@ session_start();
         </div>
     </div>
 
-    <!-- Botón flotante de ayuda -->
-    <a href="manual_usuario_fondas.html?v=ext" class="help-btn" target="_blank" title="¿Necesitas ayuda? Ver Manual">
-        <i class="fa-solid fa-question"></i>
-    </a>
-
 </body>
 </html>
